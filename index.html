@@ -178,7 +178,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='2 · 24 set 2026';
+var VERSION='3 · 24 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -380,7 +380,8 @@ function vOggi(T){
   var today=ymd(Date.now(),B.dtz), hasToday=B.E.some(function(e){return ymd(e.t,e.tz)===today});
   return '<h1>'+esc(T.name)+'</h1><p class="sub">'+esc(tripDates())+'</p>'+
     '<div class="hero" id="hero" aria-live="polite"></div><div id="entrywarn"></div>'+
-    '<button class="btn main" data-go="fasi">'+(hasToday?'Cosa fare oggi':'Vedi tutte le fasi da fare')+'</button>'+driverButtons(T);
+    '<button class="btn main" data-go="fasi">'+(hasToday?'Cosa fare oggi':'Vedi tutte le fasi da fare')+'</button>'+driverButtons(T)+
+    (B.J.length?'<h2>I tuoi voli</h2>'+flightsHtml()+'<p class="sub">Orari sempre in ora locale dell\'aeroporto.</p>':'');
 }
 function hero(){
   var h=document.getElementById('hero');if(!h)return;
@@ -395,8 +396,9 @@ function hero(){
   if(!n){h.innerHTML='<div class="what">'+(B.E.length?'Bentornato a casa!':'Mancano i voli')+'</div><div class="note">'+(B.E.length?'Il viaggio è concluso.':'Vai in I miei viaggi e correggi il viaggio.')+'</div>';return}
   var ms=n.t-now,d=Math.floor(ms/864e5),hr=Math.floor(ms%864e5/36e5),mi=Math.floor(ms%36e5/6e4);
   var c=d>0?('tra '+d+(d===1?' giorno':' giorni')+(hr?' e '+hr+' h':'')):(hr>0?'tra '+hr+' h e '+mi+' min':'tra '+mi+' min');
+  var fm=n.title.match(/^Volo (\S+)/);
   var loc=n.tz===B.dtz?'ora del posto':(n.tz==='Europe/Rome'?'ora italiana':'ora locale');
-  h.innerHTML='<div class="when">Prossimo passo</div><div class="what">'+esc(n.title)+'</div><div class="note">'+esc(n.text)+'</div><span class="count">'+c+'</span><div class="note small">'+esc(cap(dayLong(n.t,n.tz))+' alle '+hm(n.t,n.tz)+' ('+loc+')')+'</div>';
+  h.innerHTML='<div class="when">Prossimo passo</div><div class="what">'+esc(n.title)+'</div><div class="note">'+esc(n.text)+'</div><span class="count">'+c+'</span><div class="note small">'+esc(cap(dayLong(n.t,n.tz))+' alle '+hm(n.t,n.tz)+' ('+loc+')')+'</div>'+(fm?'<a class="btn main" style="margin-bottom:0" href="https://www.flightradar24.com/data/flights/'+encodeURIComponent(fm[1].toLowerCase())+'" target="_blank" rel="noopener">Segui il volo '+esc(fm[1])+'</a>':'');
 }
 function phHtml(e,time){
   return '<label class="ph'+(e.imp?' imp':'')+(isDone(e.k)?' done':'')+'"><input type="checkbox" data-k="'+esc(e.k)+'"'+(isDone(e.k)?' checked':'')+'><span><span class="tm">'+esc(time)+'</span><span class="tx">'+esc(e.text)+'</span>'+(e.url?' <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Apri il sito</a>':'')+'</span></label>';
@@ -420,13 +422,17 @@ function bindFasi(){
   prog();
   var t=app.querySelector('.day .today');if(t&&window.__jumpToday){window.__jumpToday=false;setTimeout(function(){t.parentNode.scrollIntoView({block:'start'})},50)}
 }
-function vViaggio(T){
-  var h='<h1>Voli e hotel</h1>';
+function flightsHtml(){
+  var h='';
   B.J.forEach(function(j){
     h+='<div class="card"><p class="sub">'+(j[0].leg==='ritorno'?'Ritorno':'Andata')+'</p>';
     j.forEach(function(f){h+='<div class="flight"><span class="route">'+esc(B.city(f.from)+' → '+B.city(f.to))+'</span><span class="fno">'+esc(f.number)+'</span><span class="ftime">'+esc(cap(dayShort(f.depT,B.tz(f.from)))+', '+hm(f.depT,B.tz(f.from))+' → '+(ymd(f.arrT,B.tz(f.to))!==ymd(f.depT,B.tz(f.from))?dayShort(f.arrT,B.tz(f.to))+', ':'')+hm(f.arrT,B.tz(f.to)))+'</span><a class="track" href="https://www.flightradar24.com/data/flights/'+encodeURIComponent(String(f.number).replace(/\s+/g,'').toLowerCase())+'" target="_blank" rel="noopener">Segui il volo in tempo reale →</a></div>'});
     h+='</div>';
   });
+  return h;
+}
+function vViaggio(T){
+  var h='<h1>Voli e hotel</h1>'+flightsHtml();
   if(B.J.length)h+='<p class="sub">Orari sempre in ora locale dell\'aeroporto.</p>';
   if((T.arrival_steps||[]).length){h+='<h2>Appena atterri</h2><ol class="steps">';T.arrival_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
   B.H.forEach(function(x,i){
