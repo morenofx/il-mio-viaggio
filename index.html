@@ -178,7 +178,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='3 · 24 set 2026';
+var VERSION='4 · 24 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -262,12 +262,19 @@ var SEED={
     {local:'Tao rai khrap?',it:'Quanto costa?'},{local:'Mai pet',it:'Non piccante'},{local:'Mai ao khrap',it:'No grazie, non mi serve'},
     {local:'Hong nam yu tee nai khrap?',it:'Dov\'è il bagno?'},{local:'Pheng pai khrap',it:'Troppo caro'}
   ],
-  tips:['Prese elettriche: porta un adattatore universale.','Installa eSIM e app Bolt e Grab prima di partire.'],
+  tips:['Prese elettriche: porta un adattatore universale.','Installa eSIM e app Bolt e Grab prima di partire.','Ottobre è fine stagione delle piogge: repellente per zanzare, crema solare, k-way leggero.'],
+  checks:[
+    {title:'Scalo di 1 ora',text:'Controlla che i voli G9696 e G9816 abbiano lo stesso codice di prenotazione: così, se perdi la coincidenza, Air Arabia ti rimette sul volo dopo.',imp:true},
+    {title:'Mood Hotel',text:'Annullamento gratuito fino a sabato 3 ottobre alle 10:00. Dopo non si annulla più.',imp:true},
+    {title:'Scalo di notte al ritorno',text:'10 ore a Sharjah: valuta una lounge o un posto per dormire in aeroporto.'},
+    {title:'Bolt e Grab',text:'Registrali col numero italiano prima di partire: l\'SMS di conferma arriva lì.'}
+  ],
   missing:[]
 };
 
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
+trips.forEach(function(t){if(t.id===SEED.id&&!t.checks){t.checks=SEED.checks;t.tips=SEED.tips;save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
@@ -293,6 +300,12 @@ function build(T){
   pre.push({title:'Check-in online',text:'Di solito si apre 24–48 ore prima del volo: fallo nell\'app della compagnia e salva le carte d\'imbarco.'});
   pre.push({title:'Valigia',text:'Passaporto, un po\' di contanti, carta per il bancomat, caricabatterie e adattatore per le prese.'});
   pre.push({title:'Telefono',text:'SIM o eSIM del posto, app dei taxi installate e registrate, questa app nella schermata Home.'});
+  pre.push({title:'Assicurazione',text:'Assicurazione sanitaria di viaggio fatta (o verificata quella della carta di credito). Salva il numero di assistenza nel telefono.',imp:true});
+  pre.push({title:'Passaporto',text:'Controlla la scadenza: molti paesi vogliono almeno 6 mesi di validità. Foto del passaporto nel telefono e in un\'email a te stesso.'});
+  pre.push({title:'Bagaglio',text:'Controlla nella prenotazione quanti chili di valigia da stiva hai. Se manca, compralo online: al banco costa di più. Power bank solo nel bagaglio a mano.'});
+  pre.push({title:'Senza rete',text:'Scarica le mappe offline delle città in Google Maps e la lingua del posto in Google Traduttore.'});
+  pre.push({title:'Soldi',text:'Carta senza commissioni all\'estero (Revolut, Wise o simili). Se serve, avvisa la banca del viaggio.'});
+  (T.checks||[]).forEach(function(c){if(c&&c.title)pre.push({title:c.title,text:c.text,imp:!!c.imp})});
 
   var outArr=null;
   J.forEach(function(j,ji){
@@ -618,6 +631,7 @@ var PROMPT=[
 '- currency: code ISO, name in italiano, per_eur = quante unità per 1 euro oggi.',
 '- phrases: 8 frasi utili pronunciabili (scritte in lettere latine) con traduzione italiana.',
 '- tips: 3-5 consigli pratici (prese elettriche, SIM, app di trasporto, truffe comuni).',
+'- checks: controlli specifici di QUESTO viaggio da fare prima di partire (divieti importanti del paese, per esempio sigarette elettroniche o medicinali; scadenze di annullamento gratuito degli hotel; scali sotto le 2 ore da verificare sullo stesso biglietto; scali notturni lunghi). imp true per quelli gravi.',
 '- dest_tz: fuso IANA della destinazione principale. name: nome breve del viaggio, es. "Giappone, aprile 2027".',
 '- Se un dato manca o non sei sicuro, lascialo "" e scrivilo in missing con una frase semplice in italiano.',
 '- Se ricevi un JSON da correggere, applica le correzioni e restituisci il JSON completo aggiornato.',
@@ -631,7 +645,7 @@ var PROMPT=[
 '"entry":[{"title":"","text":"","url":"","opens":""}],',
 '"arrival_steps":[{"title":"","text":""}],"departure_steps":[{"title":"","text":""}],',
 '"currency":{"code":"","name":"","per_eur":0},"emergency":[{"label":"","number":""}],"embassy":{"label":"","number":""},',
-'"phrases":[{"local":"","it":""}],"tips":[""],"missing":[""]}'
+'"phrases":[{"local":"","it":""}],"tips":[""],"checks":[{"title":"","text":"","imp":false}],"missing":[""]}'
 ].join('\n');
 
 function callGemini(key,parts,model,search){
@@ -674,7 +688,7 @@ function ask(input,att,keepId){
   attempt(true).then(function(j){
     busy=false;
     j.id=keepId||('t'+Date.now());
-    ['flights','hotels','transfers','entry','arrival_steps','departure_steps','emergency','phrases','tips','missing'].forEach(function(k){if(!Array.isArray(j[k]))j[k]=[]});
+    ['flights','hotels','transfers','entry','arrival_steps','departure_steps','emergency','phrases','tips','checks','missing'].forEach(function(k){if(!Array.isArray(j[k]))j[k]=[]});
     j.airports=j.airports||{};j.missing=j.missing.filter(Boolean);j.tips=j.tips.filter(Boolean);
     j.entry=j.entry.filter(function(e){return e&&e.title});
     if(!j.flights.length&&!j.hotels.length)throw new Error('Non ho trovato né voli né hotel. Controlla il testo o le foto.');
