@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Il mio viaggio">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#14213D">
+<meta name="robots" content="noindex, nofollow">
+<title>Il mio viaggio</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F5; --card:#FFFFFF; --ink:#14213D; --soft:#4A5670; --line:#D5DDE0;
+  --gold:#F2A900; --goldbg:#FFF4D1; --jade:#1F7A63; --jadebg:#E3F3EE;
+  --red:#B3261E; --redbg:#FBE7E5; --navy:#14213D; --onnavy:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626; --card:#18233A; --ink:#F1F4F8; --soft:#AEB9CC; --line:#2C3A56;
+    --goldbg:#3A2F10; --jadebg:#12342C; --redbg:#3D1614; --navy:#22345A; --jade:#4CC3A2; --red:#FF8A80;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626; --card:#18233A; --ink:#F1F4F8; --soft:#AEB9CC; --line:#2C3A56;
+  --goldbg:#3A2F10; --jadebg:#12342C; --redbg:#3D1614; --navy:#22345A; --jade:#4CC3A2; --red:#FF8A80;
+}
+html{height:100%}
+*{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Atkinson Hyperlegible",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  font-size:20px;line-height:1.45;-webkit-text-size-adjust:100%}
+main{max-width:640px;margin:0 auto;padding:16px 16px 130px}
+h1{font-size:30px;line-height:1.15;margin:8px 0 4px}
+h2{font-size:24px;margin:28px 0 10px}
+p{margin:6px 0}
+.sub{color:var(--soft);font-size:18px}
+.panel{display:none}.panel.on{display:block}
+
+.hero{background:var(--navy);color:var(--onnavy);border-radius:20px;padding:22px 20px;margin:12px 0 8px}
+.hero .when{font-size:18px;opacity:.85}
+.hero .what{font-size:28px;font-weight:700;line-height:1.2;margin:6px 0}
+.hero .count{display:inline-block;background:var(--gold);color:#14213D;font-weight:700;border-radius:999px;padding:6px 16px;margin-top:8px;font-size:20px}
+.hero .note{font-size:18px;margin-top:10px;opacity:.9}
+.hero .small{font-size:16px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:10px 0}
+.tip{background:var(--goldbg);border-color:var(--gold)}
+.hotel{background:var(--jadebg);border-color:var(--jade)}
+.hotel .name{font-size:24px;font-weight:700;color:var(--jade)}
+.alert{background:var(--redbg);border:2px solid var(--red);border-radius:14px;padding:14px 16px;margin:10px 0}
+.alert b{color:var(--red)}
+.alert .btn{margin-bottom:0}
+
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{position:relative;padding:0 0 22px 58px;counter-increment:s}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:42px;height:42px;border-radius:50%;
+  background:var(--navy);color:var(--onnavy);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:21px}
+.steps li::after{content:"";position:absolute;left:20px;top:46px;bottom:4px;width:2px;background:var(--line)}
+.steps li:last-child::after{display:none}
+.steps b.t{display:block;font-size:22px}
+
+.flight{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:14px 0;border-bottom:1px solid var(--line)}
+.flight:last-child{border-bottom:0}
+.route{font-size:23px;font-weight:700}
+.fno{color:var(--soft);font-size:18px;text-align:right;align-self:center}
+.ftime{grid-column:1/-1;font-size:19px}
+
+.btn{display:block;width:100%;text-align:center;font:inherit;font-weight:700;font-size:21px;
+  padding:16px;border-radius:14px;border:0;margin:10px 0;text-decoration:none;cursor:pointer}
+.btn.main{background:var(--gold);color:#14213D}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn.small{font-size:17px;padding:10px;margin:6px 0}
+.btn:disabled{opacity:.5}
+a{color:inherit}
+.tel{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none}
+.tel:last-child{border-bottom:0}
+.tel strong{font-size:24px;color:var(--jade);white-space:nowrap}
+.phr{padding:10px 0;border-bottom:1px solid var(--line)}
+.phr:last-child{border-bottom:0}
+.phr b{font-size:23px;display:block}
+
+.prog{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:12px 0;position:sticky;top:env(safe-area-inset-top,0px);z-index:2}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--jade);width:0;transition:width .3s}
+.day{margin:22px 0 6px;font-size:23px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.day .today{background:var(--gold);color:#14213D;font-size:16px;border-radius:999px;padding:3px 12px}
+.ph{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:12px;margin:8px 0;cursor:pointer}
+.ph input{width:30px;height:30px;flex:none;margin-top:2px;accent-color:var(--jade)}
+.ph .tm{display:block;font-weight:700;color:var(--jade);font-size:19px}
+.ph.imp{border:2px solid var(--red)}
+.ph.imp .tm{color:var(--red)}
+.ph.done{opacity:.55}
+.ph.done .tx{text-decoration:line-through}
+.ph a{font-weight:700}
+
+.conv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.conv label{font-size:17px;color:var(--soft)}
+.conv input{display:block;width:100%;font:inherit;font-size:26px;font-weight:700;padding:10px 12px;margin-top:4px;
+  border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.rate{font-size:17px;color:var(--soft);margin-top:10px}
+.rate input{width:90px;font:inherit;font-size:18px;padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+
+/* form */
+.fl{display:block;font-weight:700;margin:18px 0 6px}
+.fl .sub{font-weight:400;display:block}
+textarea,.in{display:block;width:100%;font:inherit;font-size:18px;padding:12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+textarea{min-height:170px;resize:vertical}
+.files{font-size:17px;color:var(--soft);margin-top:6px}
+.status{margin:12px 0;font-size:19px;min-height:1em}
+.status.err{color:var(--red);font-weight:700}
+.spin{display:inline-block;width:20px;height:20px;border:3px solid var(--line);border-top-color:var(--jade);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.trip{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.trip:last-child{border-bottom:0}
+.trip .nm{flex:1}
+.trip .nm b{display:block}
+.trip .act{background:var(--gold);color:#14213D;font-size:15px;font-weight:700;border-radius:999px;padding:3px 10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.empty{text-align:center;padding:30px 10px}
+.empty .big{font-size:60px}
+.ver{font-size:16px;color:var(--soft);text-align:center;margin-top:4px}
+
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center;z-index:5}
+nav .in{display:flex;max-width:640px;width:100%}
+nav button{flex:1;background:none;border:0;font:inherit;font-size:13px;color:var(--soft);padding:10px 2px 12px;cursor:pointer}
+nav button .ic{display:block;font-size:24px;line-height:1.2}
+nav button.on{color:var(--ink);font-weight:700;box-shadow:inset 0 3px 0 var(--gold)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+#upd{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:6;max-width:616px;margin:0 auto;
+  background:var(--jade);color:#fff;border:0;border-radius:14px;padding:14px 16px;font:inherit;font-size:19px;font-weight:700;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;display:none}
+#upd.on{display:block}
+
+#driver{position:fixed;inset:0;background:#FFFFFF;color:#000;z-index:10;display:none;flex-direction:column;overflow:auto;
+  justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px))}
+#driver.on{display:flex}
+#driver .lbl{font-size:22px;color:#555}
+#driver .dn{font-size:40px;font-weight:700;line-height:1.1;margin:10px 0 16px}
+#driver .da{font-size:28px;line-height:1.3}
+#driver .th{font-size:28px;line-height:1.4;margin-top:22px;padding-top:18px;border-top:2px solid #ddd}
+#driver .th .lbl{font-size:20px}
+#driver button{margin-top:28px;background:#14213D;color:#fff}
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<nav aria-label="Sezioni"><div class="in">
+  <button class="on" data-p="oggi"><span class="ic">✈️</span>Oggi</button>
+  <button data-p="fasi"><span class="ic">✅</span>Fasi</button>
+  <button data-p="viaggio"><span class="ic">🏨</span>Voli e hotel</button>
+  <button data-p="utili"><span class="ic">☎️</span>Utili</button>
+  <button data-p="viaggi"><span class="ic">🧳</span>Viaggi</button>
+</div></nav>
+
+<button id="upd">C'è una versione nuova · tocca per aggiornare</button>
+
+<div id="driver" role="dialog" aria-modal="true" aria-label="Indirizzo per l'autista">
+  <div class="lbl">Please take me to:</div>
+  <div class="dn" id="dn"></div>
+  <div class="da" id="da"></div>
+  <div class="th" id="dthw"><div class="lbl" id="dpl"></div><div id="dt"></div></div>
+  <button class="btn" id="dclose">Chiudi</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+var VERSION='1 · 24 set 2026';
+// Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
+var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
+
+/* ---------- memoria nel telefono ---------- */
+function load(k,def){try{var v=localStorage.getItem(k);return v===null?def:JSON.parse(v)}catch(e){return def}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function safeUrl(u){u=String(u||'');return /^https:\/\//i.test(u)?u:''}
+function telOf(n){return String(n||'').replace(/[^\d+]/g,'')}
+
+/* ---------- orari: ogni ora e' nel fuso del posto ---------- */
+function tzOffset(ms,tz){
+  try{
+    var p={};new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})
+      .formatToParts(new Date(ms)).forEach(function(x){p[x.type]=x.value});
+    return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour%24,+p.minute,+p.second)-Math.floor(ms/1000)*1000;
+  }catch(e){return 0}
+}
+// "2026-10-03T22:50" nel fuso tz -> millisecondi
+function z2e(s,tz){
+  var m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{1,2}):(\d{2}))?/);
+  if(!m)return NaN;
+  var g=Date.UTC(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0));
+  var t=g-tzOffset(g,tz);
+  return g-tzOffset(t,tz);
+}
+function fmtF(ms,tz,o){try{return new Intl.DateTimeFormat('it-IT',Object.assign({timeZone:tz},o)).format(new Date(ms))}catch(e){return ''}}
+function hm(ms,tz){return fmtF(ms,tz,{hour:'2-digit',minute:'2-digit'})}
+function dayLong(ms,tz){return fmtF(ms,tz,{weekday:'long',day:'numeric',month:'long'})}
+function dayShort(ms,tz){return fmtF(ms,tz,{weekday:'short',day:'numeric',month:'short'})}
+function ymd(ms,tz){var p={};try{new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(ms)).forEach(function(x){p[x.type]=x.value})}catch(e){}return p.year+'-'+p.month+'-'+p.day}
+function dur(min){min=Math.round(min);var h=Math.floor(min/60),m=min%60;return h?(h+(h===1?' ora':' ore')+(m?' e '+m+' min':'')):(m+' min')}
+function cap(s){s=String(s||'');return s.charAt(0).toUpperCase()+s.slice(1)}
+var MIN=6e4;
+
+/* ---------- il viaggio in Thailandia, gia' pronto ---------- */
+var SEED={
+  id:'thai2026',name:'Thailandia, ottobre 2026',country:'Thailandia',home_city:'casa',home_to_airport_minutes:170,
+  dest_tz:'Asia/Bangkok',please_take_me:'กรุณาไปส่งที่',
+  airports:{
+    BGY:{city:'Bergamo',name:'Orio al Serio',tz:'Europe/Rome'},
+    SHJ:{city:'Sharjah',name:'Sharjah International',tz:'Asia/Dubai'},
+    BKK:{city:'Bangkok',name:'Suvarnabhumi',tz:'Asia/Bangkok',address_local:'สนามบินสุวรรณภูมิ<br>ขาออก ชั้น 4'}
+  },
+  flights:[
+    {number:'G9696',airline:'Air Arabia',from:'BGY',to:'SHJ',dep:'2026-10-03T22:50',arr:'2026-10-04T06:50',leg:'andata'},
+    {number:'G9816',airline:'Air Arabia',from:'SHJ',to:'BKK',dep:'2026-10-04T07:50',arr:'2026-10-04T17:25',leg:'andata'},
+    {number:'G9817',airline:'Air Arabia',from:'BKK',to:'SHJ',dep:'2026-10-17T18:25',arr:'2026-10-17T21:50',leg:'ritorno'},
+    {number:'G9793',airline:'Air Arabia',from:'SHJ',to:'BGY',dep:'2026-10-18T07:50',arr:'2026-10-18T12:30',leg:'ritorno'}
+  ],
+  hotels:[
+    {name:'Galleria 10 Hotel Bangkok',address:'21 Sukhumvit Soi 10, Sukhumvit Road, Klongtoey, Bangkok 10110',
+     address_local:'สุขุมวิท ซอย 10<br>แขวงคลองเตย เขตคลองเตย<br>กรุงเทพฯ 10110',
+     checkin:'2026-10-04',checkin_time:'14:00',checkout:'2026-10-07',checkout_time:'12:00',notes:'Deluxe Chill Room, non rimborsabile'},
+    {name:'Mood Hotel Pattaya',address:'115/11 Moo 9, Pattaya Beach Road, Pattaya',
+     address_local:'115/11 หมู่ 9 ถนนพัทยาสาย&nbsp;1<br>พัทยา ชลบุรี',
+     checkin:'2026-10-07',checkin_time:'14:00',checkout:'2026-10-17',checkout_time:'12:00',notes:'Mood S Double Bed, annullamento gratuito fino a sab 3 ott, 10:00'}
+  ],
+  transfers:[
+    {from:'Aeroporto Suvarnabhumi',to:'Galleria 10 Hotel',minutes:75,how:'Bolt o Grab: scendi al piano 1 ed esci dalla porta 4. Oppure taxi ufficiale al piano 1. Mai i taxi offerti a voce.',price:'350–500 THB'},
+    {from:'Galleria 10 Hotel',to:'Mood Hotel Pattaya',minutes:120,how:'Bolt o Grab porta a porta, oppure bus da Ekkamai (130–150 THB) e poi Bolt.',price:'1.200–1.600 THB'},
+    {from:'Mood Hotel Pattaya',to:'Aeroporto Suvarnabhumi',minutes:120,how:'Bolt o Grab, oppure taxi a prezzo fisso chiesto alla reception. Scendi al piano 4, Partenze.',price:'1.200–1.600 THB'}
+  ],
+  entry:[{title:'TDAC, il modulo d\'ingresso online',text:'Obbligatorio. Si compila al massimo 3 giorni prima dell\'arrivo: volo G9816, hotel Galleria 10. Salva la conferma nel telefono.',url:'https://tdac.immigration.go.th/arrival-card/',opens:'2026-10-01'}],
+  arrival_steps:[
+    {title:'Immigrazione',text:'Segui i cartelli Arrival / Immigration. Mostra il passaporto. Attesa possibile 30–60 minuti.'},
+    {title:'Ritiro bagagli',text:'Sugli schermi cerca il tuo volo: ti indica il nastro (Belt).'},
+    {title:'Dogana',text:'Corsia verde "Nothing to declare", poi esci nella hall arrivi al piano 2.'},
+    {title:'Contanti',text:'Cambio migliore da SuperRich al piano B1. Gli ATM costano circa 220 THB a prelievo.'},
+    {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1 ed esci dalla porta 4 (Gate 4). Controlla la targa.'}
+  ],
+  departure_steps:[
+    {title:'In aeroporto 3 ore prima',text:'Piano 4, Partenze. Cerca i banchi della compagnia sugli schermi e consegna la valigia.'},
+    {title:'Controlli',text:'Passaporto e sicurezza, poi al gate. I banchi chiudono circa 1 ora prima del volo.'}
+  ],
+  currency:{code:'THB',name:'baht',per_eur:38},
+  emergency:[{label:'Polizia turistica (parla inglese)',number:'1155'},{label:'Polizia',number:'191'},{label:'Ambulanza',number:'1669'}],
+  embassy:{label:'Ambasciata d\'Italia a Bangkok',number:'+66 2 250 4970'},
+  phrases:[
+    {local:'Meter, please',it:'Tassametro, per favore'},{local:'Khob khun khrap',it:'Grazie'},{local:'Sawasdee khrap',it:'Ciao, buongiorno'},
+    {local:'Tao rai khrap?',it:'Quanto costa?'},{local:'Mai pet',it:'Non piccante'},{local:'Mai ao khrap',it:'No grazie, non mi serve'},
+    {local:'Hong nam yu tee nai khrap?',it:'Dov\'è il bagno?'},{local:'Pheng pai khrap',it:'Troppo caro'}
+  ],
+  tips:['Prese elettriche: porta un adattatore universale.','Installa eSIM e app Bolt e Grab prima di partire.'],
+  missing:[]
+};
+
+var trips=load('trips',null);
+if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
+var activeId=load('active',trips[0]&&trips[0].id);
+function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
+var checks=load('checks',{});
+function isDone(k){return !!checks[k]}
+function setDone(k,v){if(v)checks[k]=1;else delete checks[k];save('checks',checks)}
+
+/* ---------- dal viaggio alle fasi (regole fisse, non decise dall'AI) ---------- */
+function build(T){
+  var ap=T.airports||{};
+  function tz(c){return (ap[c]&&ap[c].tz)||T.dest_tz||'UTC'}
+  function city(c){return (ap[c]&&ap[c].city)||c}
+  var F=(T.flights||[]).map(function(f){return Object.assign({},f,{depT:z2e(f.dep,tz(f.from)),arrT:z2e(f.arr,tz(f.to))})})
+    .filter(function(f){return !isNaN(f.depT)}).sort(function(a,b){return a.depT-b.depT});
+  // voli attaccati (meno di 24 ore di scalo) = un solo spostamento
+  var J=[];F.forEach(function(f,i){if(i===0||f.depT-F[i-1].arrT>24*36e5||f.leg!==F[i-1].leg)J.push([]);J[J.length-1].push(f)});
+  var dtz=T.dest_tz||(J[0]?tz(J[0][J[0].length-1].to):'UTC');
+  var H=(T.hotels||[]).slice().sort(function(a,b){return String(a.checkin).localeCompare(String(b.checkin))});
+  var TR=T.transfers||[];
+  var E=[], pre=[];
+  function add(t,z,title,text,imp,url){if(!isNaN(t))E.push({t:t,tz:z,title:title,text:text,imp:!!imp,url:url})}
+
+  (T.entry||[]).forEach(function(e){pre.push({title:e.title,text:e.text+(e.opens?' Si compila da '+dayLong(z2e(e.opens,dtz),dtz)+'.':''),imp:true,url:safeUrl(e.url)})});
+  pre.push({title:'Check-in online',text:'Di solito si apre 24–48 ore prima del volo: fallo nell\'app della compagnia e salva le carte d\'imbarco.'});
+  pre.push({title:'Valigia',text:'Passaporto, un po\' di contanti, carta per il bancomat, caricabatterie e adattatore per le prese.'});
+  pre.push({title:'Telefono',text:'SIM o eSIM del posto, app dei taxi installate e registrate, questa app nella schermata Home.'});
+
+  var outArr=null;
+  J.forEach(function(j,ji){
+    var a=j[0], z=j[j.length-1], out=(a.leg!=='ritorno');
+    var fin=city(z.to);
+    if(out&&ji===0){
+      var hm0=+T.home_to_airport_minutes||90;
+      add(a.depT-(180+hm0)*MIN,tz(a.from),'Parti per l\'aeroporto di '+city(a.from),'Calcolato con circa '+dur(hm0)+' tra strada e margine per il traffico.');
+    }
+    add(a.depT-180*MIN,tz(a.from),'Al banco '+(a.airline||'della compagnia')+': consegna la valigia',
+      j.length>1?'Chiedi che la valigia arrivi direttamente a '+fin+' e fatti dare le carte d\'imbarco di tutti i voli.':'Poi controllo passaporti e sicurezza, e al gate.',true);
+    j.forEach(function(f,k){
+      if(k>0){
+        var p=j[k-1],g=(f.depT-p.arrT)/MIN,short=g<120;
+        add(p.arrT,tz(p.to),'Scalo a '+city(p.to)+': '+dur(g),
+          short?'Scalo breve: non uscire. Segui subito i cartelli Transfer e vai al gate del volo '+f.number+'.':'Resta nell\'area transiti e segui i cartelli Transfer.',short);
+      }
+      add(f.depT,tz(f.from),'Volo '+f.number+' '+city(f.from)+' → '+city(f.to),'Arrivo alle '+hm(f.arrT,tz(f.to))+' ora locale.');
+    });
+    add(z.arrT,tz(z.to),'Atterraggio a '+fin,out?'Poi immigrazione, bagagli e trasporto: i passi sono nella scheda Voli e hotel.':'Bentornato! Ritiro valigia e rientro a casa.');
+    if(out&&!outArr)outArr=z;
+  });
+
+  var retJ=J.filter(function(j){return j[0].leg==='ritorno'});
+  var prevEnd=null;
+  H.forEach(function(h,i){
+    var ci=z2e(h.checkin+'T'+(h.checkin_time||'14:00'),dtz), co=z2e(h.checkout+'T'+(h.checkout_time||'12:00'),dtz);
+    var tIn=TR[i]||{};
+    if(i===0&&outArr){
+      var go=outArr.arrT+60*MIN;
+      add(go,dtz,'Verso '+h.name,[tIn.how,tIn.price?'Circa '+tIn.price+'.':'',tIn.minutes?'Ci vogliono circa '+dur(tIn.minutes)+'.':''].join(' ').trim(),true);
+      ci=Math.max(ci,go+(+tIn.minutes||60)*MIN);
+    }else if(prevEnd){ci=Math.max(ci,prevEnd)}
+    add(ci,dtz,'Check-in: '+h.name,'Check-in dalle '+(h.checkin_time||'14:00')+'. '+(h.notes||''));
+    if(i<H.length-1){
+      var tn=TR[i+1]||{};
+      add(co,dtz,'Check-out da '+h.name,'Entro le '+(h.checkout_time||'12:00')+'.');
+      add(co+MIN,dtz,'Verso '+H[i+1].name,[tn.how,tn.price?'Circa '+tn.price+'.':'',tn.minutes?'Ci vogliono circa '+dur(tn.minutes)+'.':''].join(' ').trim());
+      prevEnd=co+(+tn.minutes||120)*MIN;
+    }else{
+      var rj=null;retJ.forEach(function(j){if(!rj&&j[0].depT>co-24*36e5)rj=j});
+      if(!rj){add(co,dtz,'Check-out da '+h.name,'Entro le '+(h.checkout_time||'12:00')+'.');return}
+      var r=rj[0],tr=TR[i+1]||{},m=+tr.minutes||90,leave=r.depT-(180+m)*MIN;
+      var eve=z2e(ymd(r.depT-864e5,dtz)+'T20:00',dtz);
+      add(eve,dtz,'Valigia e check-in online','Prepara la valigia e fai il check-in online del volo '+r.number+'. Tieni da parte i contanti per il trasferimento.');
+      add(Math.min(co,leave-15*MIN),dtz,'Check-out da '+h.name,'Entro le '+(h.checkout_time||'12:00')+'.');
+      add(leave,dtz,'Parti per l\'aeroporto di '+city(r.from),[tr.how,tr.price?'Circa '+tr.price+'.':'','Ci vogliono circa '+dur(m)+'.'].join(' ').trim(),true);
+    }
+  });
+  E.sort(function(a,b){return a.t-b.t});
+  E.forEach(function(e,i){e.k=T.id+'-e-'+e.title+'-'+e.t});
+  pre.forEach(function(e,i){e.k=T.id+'-p-'+i});
+  return {E:E,pre:pre,J:J,F:F,H:H,dtz:dtz,tz:tz,city:city,outArr:outArr};
+}
+
+/* ---------- schede ---------- */
+var app=document.getElementById('app'), tab='oggi', B=null;
+function show(p){tab=p;document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===p)});render();window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.p)})});
+
+function render(){
+  var T=active();
+  B=T?build(T):null;
+  if(tab==='viaggi'){app.innerHTML=vViaggi();bindViaggi();return}
+  if(!T){app.innerHTML='<div class="empty"><div class="big">🧳</div><h1>Nessun viaggio</h1><p class="sub">Crea il tuo primo viaggio: incolla le prenotazioni e l\'app prepara tutto.</p><button class="btn main" data-go="nuovo">Crea un viaggio</button></div>';bindCommon();return}
+  app.innerHTML=({oggi:vOggi,fasi:vFasi,viaggio:vViaggio,utili:vUtili})[tab](T);
+  bindCommon();
+  if(tab==='oggi')hero();
+  if(tab==='fasi')bindFasi();
+  if(tab==='utili')bindConv(T);
+}
+
+function driverButtons(T){
+  var h='';(B.H).forEach(function(x,i){h+='<button class="btn alt" data-driver="h'+i+'">Mostra all\'autista: '+esc(x.name)+'</button>'});
+  var rj=B.J.filter(function(j){return j[0].leg==='ritorno'})[0];
+  if(rj)h+='<button class="btn alt" data-driver="a'+esc(rj[0].from)+'">Mostra all\'autista: aeroporto</button>';
+  return h;
+}
+function tripDates(){
+  if(!B.F.length)return '';
+  var a=B.F[0],z=B.F[B.F.length-1];
+  return dayShort(a.depT,B.tz(a.from))+' – '+dayShort(z.arrT,B.tz(z.to));
+}
+function vOggi(T){
+  var today=ymd(Date.now(),B.dtz), hasToday=B.E.some(function(e){return ymd(e.t,e.tz)===today});
+  return '<h1>'+esc(T.name)+'</h1><p class="sub">'+esc(tripDates())+'</p>'+
+    '<div class="hero" id="hero" aria-live="polite"></div><div id="entrywarn"></div>'+
+    '<button class="btn main" data-go="fasi">'+(hasToday?'Cosa fare oggi':'Vedi tutte le fasi da fare')+'</button>'+driverButtons(T);
+}
+function hero(){
+  var h=document.getElementById('hero');if(!h)return;
+  var now=Date.now(),n=null;
+  for(var i=0;i<B.E.length;i++){var e=B.E[i];if(e.t>now&&!isDone(e.k)){n=e;break}}
+  // promemoria del modulo d'ingresso finche' non e' spuntato
+  var w='';(active().entry||[]).forEach(function(e,i){
+    var k=active().id+'-p-'+i, op=e.opens?z2e(e.opens,B.dtz):(B.outArr?B.outArr.arrT-7*864e5:now-1);
+    if(!isDone(k)&&now>=op&&B.outArr&&now<B.outArr.arrT)w+='<div class="alert"><b>'+esc(e.title)+': non ancora spuntato.</b> '+esc(e.text)+(safeUrl(e.url)?'<a class="btn main" href="'+esc(safeUrl(e.url))+'" target="_blank" rel="noopener">Compila adesso</a>':'')+'</div>';
+  });
+  document.getElementById('entrywarn').innerHTML=w;
+  if(!n){h.innerHTML='<div class="what">'+(B.E.length?'Bentornato a casa!':'Mancano i voli')+'</div><div class="note">'+(B.E.length?'Il viaggio è concluso.':'Vai in I miei viaggi e correggi il viaggio.')+'</div>';return}
+  var ms=n.t-now,d=Math.floor(ms/864e5),hr=Math.floor(ms%864e5/36e5),mi=Math.floor(ms%36e5/6e4);
+  var c=d>0?('tra '+d+(d===1?' giorno':' giorni')+(hr?' e '+hr+' h':'')):(hr>0?'tra '+hr+' h e '+mi+' min':'tra '+mi+' min');
+  var loc=n.tz===B.dtz?'ora del posto':(n.tz==='Europe/Rome'?'ora italiana':'ora locale');
+  h.innerHTML='<div class="when">Prossimo passo</div><div class="what">'+esc(n.title)+'</div><div class="note">'+esc(n.text)+'</div><span class="count">'+c+'</span><div class="note small">'+esc(cap(dayLong(n.t,n.tz))+' alle '+hm(n.t,n.tz)+' ('+loc+')')+'</div>';
+}
+function phHtml(e,time){
+  return '<label class="ph'+(e.imp?' imp':'')+(isDone(e.k)?' done':'')+'"><input type="checkbox" data-k="'+esc(e.k)+'"'+(isDone(e.k)?' checked':'')+'><span><span class="tm">'+esc(time)+'</span><span class="tx">'+esc(e.text)+'</span>'+(e.url?' <a href="'+esc(e.url)+'" target="_blank" rel="noopener">Apri il sito</a>':'')+'</span></label>';
+}
+function vFasi(T){
+  var h='<h1>Tutte le fasi</h1><p class="sub">Spunta ogni fase quando l\'hai fatta. Quelle in rosso sono le più importanti.</p><div class="prog"><span id="progt"></span><div class="bar"><i id="progb"></i></div></div>';
+  h+='<div class="day">Prima di partire</div>';
+  B.pre.forEach(function(e){h+=phHtml(e,e.title)});
+  var cur='',today=ymd(Date.now(),B.dtz);
+  B.E.forEach(function(e){
+    var d=ymd(e.t,e.tz);
+    if(d!==cur){cur=d;h+='<div class="day" data-date="'+d+'">'+esc(cap(dayLong(e.t,e.tz)))+(d===today?' <span class="today">Oggi</span>':'')+'</div>'}
+    h+=phHtml(e,hm(e.t,e.tz)+' · '+e.title);
+  });
+  return h;
+}
+function bindFasi(){
+  var all=app.querySelectorAll('.ph input');
+  function prog(){var d=0;all.forEach(function(i){if(i.checked)d++});document.getElementById('progt').textContent=d+' fasi fatte su '+all.length;document.getElementById('progb').style.width=(100*d/(all.length||1))+'%'}
+  all.forEach(function(i){i.addEventListener('change',function(){setDone(i.dataset.k,i.checked);i.closest('.ph').classList.toggle('done',i.checked);prog()})});
+  prog();
+  var t=app.querySelector('.day .today');if(t&&window.__jumpToday){window.__jumpToday=false;setTimeout(function(){t.parentNode.scrollIntoView({block:'start'})},50)}
+}
+function vViaggio(T){
+  var h='<h1>Voli e hotel</h1>';
+  B.J.forEach(function(j){
+    h+='<div class="card"><p class="sub">'+(j[0].leg==='ritorno'?'Ritorno':'Andata')+'</p>';
+    j.forEach(function(f){h+='<div class="flight"><span class="route">'+esc(B.city(f.from)+' → '+B.city(f.to))+'</span><span class="fno">'+esc(f.number)+'</span><span class="ftime">'+esc(cap(dayShort(f.depT,B.tz(f.from)))+', '+hm(f.depT,B.tz(f.from))+' → '+(ymd(f.arrT,B.tz(f.to))!==ymd(f.depT,B.tz(f.from))?dayShort(f.arrT,B.tz(f.to))+', ':'')+hm(f.arrT,B.tz(f.to)))+'</span></div>'});
+    h+='</div>';
+  });
+  if(B.J.length)h+='<p class="sub">Orari sempre in ora locale dell\'aeroporto.</p>';
+  if((T.arrival_steps||[]).length){h+='<h2>Appena atterri</h2><ol class="steps">';T.arrival_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
+  B.H.forEach(function(x,i){
+    var tr=(T.transfers||[])[i];
+    if(tr)h+='<div class="card tip"><b>'+esc((tr.from||'')+' → '+(tr.to||''))+'</b><p>'+esc(tr.how)+'</p><p class="sub">'+esc([tr.price,tr.minutes?'circa '+dur(tr.minutes):''].filter(Boolean).join(' · '))+'</p></div>';
+    h+='<h2>'+esc(x.name)+'</h2><div class="card hotel"><div class="name">'+esc(x.name)+'</div><p>'+esc(x.address)+'</p><p><b>Check-in</b> '+esc(dayShort(z2e(x.checkin,B.dtz),B.dtz))+', dalle '+esc(x.checkin_time||'14:00')+'<br><b>Check-out</b> '+esc(dayShort(z2e(x.checkout,B.dtz),B.dtz))+', entro le '+esc(x.checkout_time||'12:00')+'</p>'+(x.notes?'<p class="sub">'+esc(x.notes)+'</p>':'')+'</div>'+
+      '<button class="btn main" data-driver="h'+i+'">Mostra all\'autista</button><a class="btn alt" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.name+' '+x.address)+'" target="_blank" rel="noopener">Apri in Google Maps</a>';
+  });
+  var last=(T.transfers||[])[B.H.length];
+  if(last)h+='<h2>Verso l\'aeroporto</h2><div class="card tip"><b>'+esc((last.from||'')+' → '+(last.to||''))+'</b><p>'+esc(last.how)+'</p><p class="sub">'+esc([last.price,last.minutes?'circa '+dur(last.minutes):''].filter(Boolean).join(' · '))+'</p></div>';
+  if((T.departure_steps||[]).length){h+='<ol class="steps">';T.departure_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
+  return h;
+}
+function vUtili(T){
+  var h='<h1>Numeri e parole utili</h1>';
+  (T.entry||[]).forEach(function(e){h+='<div class="card tip"><b>'+esc(e.title)+'</b><p>'+esc(e.text)+'</p>'+(safeUrl(e.url)?'<a class="btn alt small" href="'+esc(safeUrl(e.url))+'" target="_blank" rel="noopener">Apri il sito</a>':'')+'</div>'});
+  var em=(T.emergency||[]).slice();if(T.embassy&&T.embassy.number)em.push(T.embassy);
+  if(em.length){h+='<h2>Tocca per chiamare</h2><div class="card">';em.forEach(function(x){h+='<a class="tel" href="tel:'+esc(telOf(x.number))+'"><span>'+esc(x.label)+'</span><strong>'+esc(x.number)+'</strong></a>'});h+='</div>'}
+  if((T.phrases||[]).length){h+='<h2>Parole</h2><div class="card">';T.phrases.forEach(function(p){h+='<div class="phr"><b>'+esc(p.local)+'</b>'+esc(p.it)+'</div>'});h+='</div>'}
+  var c=T.currency||{};
+  if(c.code&&c.code!=='EUR'){h+='<h2>Quanto costa in euro?</h2><div class="card"><div class="conv"><label>'+esc(cap(c.name||c.code))+' ('+esc(c.code)+')<input id="loc" type="number" inputmode="decimal" placeholder="100"></label><label>Euro (€)<input id="eur" type="number" inputmode="decimal" placeholder="0"></label></div><p class="rate">Cambio usato: 1 € = <input id="rate" type="number" inputmode="decimal" step="0.01"> '+esc(c.code)+'. Controllalo sull\'app della banca e correggilo qui: lo ricorda.</p></div>'}
+  if((T.tips||[]).length){h+='<h2>Consigli</h2><div class="card">';T.tips.forEach(function(t){h+='<p>• '+esc(t)+'</p>'});h+='</div>'}
+  return h;
+}
+function bindConv(T){
+  var loc=document.getElementById('loc');if(!loc)return;
+  var eur=document.getElementById('eur'),rate=document.getElementById('rate'),rk='rate-'+T.id,def=(T.currency&&T.currency.per_eur)||1;
+  rate.value=load(rk,def);
+  function r(){var v=parseFloat(String(rate.value).replace(',','.'));return v>0?v:def}
+  function rd(x,d){var m=Math.pow(10,d);return Math.round(x*m)/m}
+  loc.addEventListener('input',function(){eur.value=loc.value===''?'':rd(parseFloat(loc.value)/r(),2)});
+  eur.addEventListener('input',function(){loc.value=eur.value===''?'':rd(parseFloat(eur.value)*r(),r()>20?0:2)});
+  rate.addEventListener('input',function(){save(rk,rate.value);if(loc.value!=='')eur.value=rd(parseFloat(loc.value)/r(),2)});
+}
+
+/* ---------- schermata per l'autista ---------- */
+var dr=document.getElementById('driver'),lock=null;
+function openDriver(id){
+  var T=active(),n,a,l;
+  if(id.charAt(0)==='h'){var x=B.H[+id.slice(1)];n=x.name;a=esc(x.address);l=x.address_local||''}
+  else{var c=id.slice(1),ap=(T.airports||{})[c]||{};n=(ap.name?ap.name+' Airport':'Airport')+' ('+c+')';a='Departures';l=ap.address_local||''}
+  document.getElementById('dn').textContent=n;
+  document.getElementById('da').innerHTML=a;
+  // l'indirizzo nella lingua del posto arriva dal viaggio salvato: si ripulisce tenendo solo gli a capo
+  document.getElementById('dt').innerHTML=esc(String(l).replace(/<br\s*\/?>/gi,'\n').replace(/&nbsp;/g,' ').replace(/<[^>]*>/g,'')).replace(/\n/g,'<br>');
+  document.getElementById('dpl').textContent=T.please_take_me||'';
+  document.getElementById('dthw').style.display=l?'':'none';
+  dr.classList.add('on');
+  try{navigator.wakeLock.request('screen').then(function(k){lock=k}).catch(function(){})}catch(e){}
+}
+function closeDriver(){dr.classList.remove('on');if(lock){try{lock.release()}catch(e){}lock=null}}
+document.getElementById('dclose').addEventListener('click',closeDriver);
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDriver()});
+
+function bindCommon(){
+  app.querySelectorAll('[data-driver]').forEach(function(b){b.addEventListener('click',function(){openDriver(b.dataset.driver)})});
+  app.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(){
+    var g=b.dataset.go;
+    if(g==='nuovo'){editing=null;step='form';show('viaggi');return}
+    if(g==='fasi')window.__jumpToday=true;
+    show(g);
+  })});
+}
+
+/* ---------- i miei viaggi: crea con Gemini ---------- */
+var step='list',editing=null,draft=null,files=[],busy=false;
+function vViaggi(){
+  if(step==='form')return vForm();
+  if(step==='review')return vReview();
+  var h='<h1>I miei viaggi</h1><div class="card">';
+  if(!trips.length)h+='<p class="sub">Nessun viaggio salvato.</p>';
+  trips.forEach(function(t){
+    var on=t.id===(active()&&active().id);
+    h+='<div class="trip"><div class="nm"><b>'+esc(t.name)+'</b>'+(on?'<span class="act">In uso</span>':'<button class="btn alt small" data-use="'+esc(t.id)+'">Usa questo</button>')+'</div></div>'+
+      '<div class="row2"><button class="btn alt small" data-fix="'+esc(t.id)+'">Correggi</button><button class="btn alt small" data-del="'+esc(t.id)+'">Elimina</button></div>';
+  });
+  h+='</div><button class="btn main" id="new">+ Nuovo viaggio</button>';
+  h+='<h2>Chiave Gemini</h2><div class="card"><p>Serve per preparare i viaggi nuovi. Resta solo su questo telefono.</p>'+
+    '<input class="in" id="gkey" type="password" autocomplete="off" placeholder="Incolla qui la chiave" value="'+esc(load('gkey',''))+'">'+
+    '<p class="sub">La prendi gratis su <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> con il tuo account Google.</p><p class="status" id="kst"></p></div>';
+  h+='<h2>Aggiornamenti</h2><button class="btn alt" id="updnow">Aggiorna l\'app</button><p class="ver">L\'app si aggiorna da sola quando la apri con internet.<br>Versione '+VERSION+'</p>';
+  return h;
+}
+function vForm(){
+  var ed=editing?tripById(editing):null;
+  return '<h1>'+(ed?'Correggi il viaggio':'Nuovo viaggio')+'</h1>'+
+    (ed?'<p class="sub">'+esc(ed.name)+'</p><label class="fl" for="txt">Cosa c\'è da correggere?<span class="sub">Scrivilo a parole, per esempio: il volo di ritorno parte alle 18:25; aggiungi l\'hotel X dal 10 al 12.</span></label>'
+       :'<label class="fl" for="txt">Incolla qui le conferme di voli e hotel<span class="sub">Email, messaggi o appunti scritti a parole: va bene tutto.</span></label>')+
+    '<textarea id="txt"></textarea>'+
+    '<label class="fl">Foto o PDF delle prenotazioni<span class="sub">Screenshot delle email, biglietti, conferme dell\'hotel.</span></label>'+
+    '<input type="file" id="fil" accept="image/*,application/pdf" multiple><div class="files" id="fls"></div>'+
+    (ed?'':'<label class="fl" for="home">Da dove parti per andare in aeroporto?<span class="sub">La città di casa, serve per l\'orario di partenza.</span></label><input class="in" id="home" placeholder="Es. Brescia">')+
+    '<p class="status" id="st"></p><button class="btn main" id="go">'+(ed?'Correggi':'Prepara il viaggio')+'</button><button class="btn alt" id="back">Annulla</button>';
+}
+function vReview(){
+  var T=draft,b=build(T),h='<h1>Controlla</h1><p class="sub">Ecco cosa ho capito. Se è giusto, salva.</p><div class="card"><b>'+esc(T.name)+'</b>';
+  b.F.forEach(function(f){h+='<p>✈️ '+esc(f.number+' '+b.city(f.from)+' → '+b.city(f.to)+', '+dayShort(f.depT,b.tz(f.from))+' '+hm(f.depT,b.tz(f.from))+' → '+hm(f.arrT,b.tz(f.to)))+'</p>'});
+  b.H.forEach(function(x){h+='<p>🏨 '+esc(x.name+', '+dayShort(z2e(x.checkin,b.dtz),b.dtz)+' → '+dayShort(z2e(x.checkout,b.dtz),b.dtz))+'</p>'});
+  h+='</div>';
+  if((T.missing||[]).length){h+='<div class="alert"><b>Mancano o non sono sicuri:</b>';T.missing.forEach(function(m){h+='<p>• '+esc(m)+'</p>'});h+='</div>'}
+  h+='<button class="btn main" id="ok">È giusto, salva il viaggio</button>'+
+    '<label class="fl" for="fix">Qualcosa non va?<span class="sub">Scrivi cosa correggere.</span></label><textarea id="fix" style="min-height:90px"></textarea>'+
+    '<p class="status" id="st"></p><button class="btn alt" id="refix">Correggi</button><button class="btn alt" id="back">Annulla</button>';
+  return h;
+}
+function tripById(id){for(var i=0;i<trips.length;i++)if(trips[i].id===id)return trips[i];return null}
+function bindViaggi(){
+  var q=function(id){return document.getElementById(id)};
+  if(step==='list'){
+    app.querySelectorAll('[data-use]').forEach(function(b){b.addEventListener('click',function(){activeId=b.dataset.use;save('active',activeId);show('oggi')})});
+    app.querySelectorAll('[data-fix]').forEach(function(b){b.addEventListener('click',function(){editing=b.dataset.fix;step='form';files=[];render()})});
+    app.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){
+      var t=tripById(b.dataset.del);if(!confirm('Eliminare il viaggio "'+t.name+'"?'))return;
+      trips=trips.filter(function(x){return x!==t});save('trips',trips);
+      if(activeId===t.id){activeId=trips[0]&&trips[0].id;save('active',activeId)}
+      render();
+    })});
+    q('new').addEventListener('click',function(){editing=null;step='form';files=[];render()});
+    q('gkey').addEventListener('change',function(){save('gkey',this.value.trim());q('kst').textContent='Chiave salvata.'});
+    q('updnow').addEventListener('click',function(){
+      if(!navigator.onLine){alert('Serve internet per aggiornare. Riprova quando hai campo.');return}
+      this.textContent='Aggiorno…';var go=function(){reloadFresh()};
+      if(window.swReg)window.swReg.update().then(go,go);else go();
+    });
+    return;
+  }
+  q('back').addEventListener('click',function(){if(busy)return;step='list';draft=null;render()});
+  if(step==='form'){
+    q('fil').addEventListener('change',function(){
+      var st=q('st');st.className='status';st.textContent='Preparo i file…';
+      Promise.all([].slice.call(this.files).map(readFile)).then(function(r){files=files.concat(r);q('fls').textContent=files.length+(files.length===1?' file aggiunto':' file aggiunti');st.textContent=''})
+        .catch(function(){st.className='status err';st.textContent='Non riesco a leggere uno dei file.'});
+    });
+    q('go').addEventListener('click',function(){
+      var txt=q('txt').value.trim(),ed=editing?tripById(editing):null;
+      if(!txt&&!files.length){err('Incolla un testo o aggiungi una foto delle prenotazioni.');return}
+      var input=ed?'VIAGGIO ATTUALE (JSON da correggere):\n'+JSON.stringify(strip(ed))+'\n\nCORREZIONI DELL\'UTENTE:\n'+txt
+        :'MATERIALI DELL\'UTENTE:\n'+txt+'\n\nParte per l\'aeroporto da: '+(q('home').value.trim()||'non indicato');
+      ask(input,files,ed&&ed.id);
+    });
+  }
+  if(step==='review'){
+    q('ok').addEventListener('click',function(){
+      var i=-1;trips.forEach(function(t,j){if(t.id===draft.id)i=j});
+      if(i>=0)trips[i]=draft;else trips.push(draft);
+      save('trips',trips);activeId=draft.id;save('active',activeId);step='list';draft=null;show('oggi');
+    });
+    q('refix').addEventListener('click',function(){
+      var t=q('fix').value.trim();if(!t){err('Scrivi cosa correggere.');return}
+      ask('VIAGGIO ATTUALE (JSON da correggere):\n'+JSON.stringify(strip(draft))+'\n\nCORREZIONI DELL\'UTENTE:\n'+t,[],draft.id);
+    });
+  }
+}
+function strip(t){var c=JSON.parse(JSON.stringify(t));delete c.id;return c}
+function err(m){var s=document.getElementById('st');if(s){s.className='status err';s.textContent=m}}
+function readFile(f){
+  return new Promise(function(ok,ko){
+    if(f.type==='application/pdf'){
+      if(f.size>12e6){ko();return}
+      var r=new FileReader();r.onload=function(){ok({mime:'application/pdf',data:String(r.result).split(',')[1]})};r.onerror=ko;r.readAsDataURL(f);return;
+    }
+    // le foto si rimpiccioliscono: bastano 1600 pixel per leggere una prenotazione
+    var u=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){var s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok({mime:'image/jpeg',data:c.toDataURL('image/jpeg',0.85).split(',')[1]})};
+    im.onerror=ko;im.src=u;
+  });
+}
+
+var PROMPT=[
+'Sei l\'assistente di viaggio di un italiano. Dai materiali qui sotto (email di prenotazione, screenshot, PDF, appunti, oppure un viaggio in JSON da correggere) ricava voli e hotel e prepara le informazioni pratiche per il viaggio.',
+'Usa la ricerca Google per: regole d\'ingresso aggiornate del paese per un cittadino italiano (visto, moduli online obbligatori con il sito ufficiale), punti di ritiro di taxi e app di trasporto negli aeroporti, tempi e prezzi dei trasferimenti, numeri di emergenza, ambasciata d\'Italia.',
+'REGOLE:',
+'- Orari dei voli SEMPRE nell\'ora locale dell\'aeroporto, formato YYYY-MM-DDTHH:MM, esattamente come nella prenotazione. Non convertire mai i fusi.',
+'- Aeroporti con codice IATA. Per ogni aeroporto: city, name, tz (fuso IANA, es. Europe/Rome), address_local (nome dell\'aeroporto e "Partenze" scritti nella lingua e alfabeto del posto; vuoto se il paese usa l\'italiano).',
+'- leg: "andata" o "ritorno" (i voli che riportano a casa sono ritorno).',
+'- hotels in ordine di data: checkin e checkout in formato YYYY-MM-DD, orari HH:MM (se mancano usa gli orari standard dell\'hotel), address completo, address_local = indirizzo scritto nella lingua e nell\'alfabeto del paese come lo leggerebbe un tassista del posto, andando a capo con <br>. Se il paese usa l\'alfabeto latino, ripeti l\'indirizzo.',
+'- transfers in quest\'ordine esatto: dall\'aeroporto di arrivo al primo hotel, da ogni hotel al successivo, dall\'ultimo hotel all\'aeroporto del volo di ritorno. minutes = durata realistica col traffico. how = come andarci in una o due frasi, con il punto di ritiro preciso in aeroporto. price = prezzo indicativo nella moneta locale.',
+'- home_to_airport_minutes: tempo dalla città di partenza indicata all\'aeroporto del primo volo (90 se non indicata).',
+'- please_take_me: "Per favore portami a:" nella lingua del paese.',
+'- entry: moduli o permessi da fare prima di arrivare (titolo, testo breve, url ufficiale https, opens = data YYYY-MM-DD da cui si può compilare, "" se sempre).',
+'- arrival_steps: 4-6 passi pratici dall\'atterraggio all\'uscita nel primo aeroporto di arrivo (immigrazione, bagagli, dogana, contanti, taxi/app con piano e porta). departure_steps: 2-3 passi per il volo di ritorno in quell\'aeroporto (piano partenze, tempi).',
+'- currency: code ISO, name in italiano, per_eur = quante unità per 1 euro oggi.',
+'- phrases: 8 frasi utili pronunciabili (scritte in lettere latine) con traduzione italiana.',
+'- tips: 3-5 consigli pratici (prese elettriche, SIM, app di trasporto, truffe comuni).',
+'- dest_tz: fuso IANA della destinazione principale. name: nome breve del viaggio, es. "Giappone, aprile 2027".',
+'- Se un dato manca o non sei sicuro, lascialo "" e scrivilo in missing con una frase semplice in italiano.',
+'- Se ricevi un JSON da correggere, applica le correzioni e restituisci il JSON completo aggiornato.',
+'- Tutti i testi in italiano semplice, frasi brevi, niente emoji.',
+'Rispondi SOLO con un oggetto JSON valido, senza altro testo, con esattamente queste chiavi:',
+'{"name":"","country":"","dest_tz":"","home_city":"","home_to_airport_minutes":90,"please_take_me":"",',
+'"airports":{"XXX":{"city":"","name":"","tz":"","address_local":""}},',
+'"flights":[{"number":"","airline":"","from":"","to":"","dep":"","arr":"","leg":"andata"}],',
+'"hotels":[{"name":"","address":"","address_local":"","checkin":"","checkin_time":"","checkout":"","checkout_time":"","notes":""}],',
+'"transfers":[{"from":"","to":"","minutes":0,"how":"","price":""}],',
+'"entry":[{"title":"","text":"","url":"","opens":""}],',
+'"arrival_steps":[{"title":"","text":""}],"departure_steps":[{"title":"","text":""}],',
+'"currency":{"code":"","name":"","per_eur":0},"emergency":[{"label":"","number":""}],"embassy":{"label":"","number":""},',
+'"phrases":[{"local":"","it":""}],"tips":[""],"missing":[""]}'
+].join('\n');
+
+function callGemini(key,parts,model,search){
+  var body={contents:[{role:'user',parts:parts}],generationConfig:{temperature:0.2}};
+  if(search)body.tools=[{google_search:{}}];else body.generationConfig.responseMimeType='application/json';
+  var ctl=new AbortController(),to=setTimeout(function(){ctl.abort()},150000);
+  return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent',{method:'POST',signal:ctl.signal,
+    headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)})
+    .then(function(r){return r.json().then(function(d){clearTimeout(to);return{ok:r.ok,status:r.status,d:d}})});
+}
+function parseJson(d){
+  var c=d&&d.candidates&&d.candidates[0],t=((c&&c.content&&c.content.parts)||[]).map(function(p){return p.text||''}).join('');
+  var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)return null;
+  try{return JSON.parse(t.slice(a,b+1))}catch(e){return null}
+}
+function ask(input,att,keepId){
+  var key=load('gkey','');
+  if(!key){err('Prima incolla la chiave Gemini in I miei viaggi (in fondo alla pagina).');return}
+  if(!navigator.onLine){err('Serve internet per preparare il viaggio.');return}
+  if(busy)return;busy=true;
+  var st=document.getElementById('st');st.className='status';st.innerHTML='<span class="spin"></span>Sto preparando il viaggio: cerco regole d\'ingresso, trasferimenti e indirizzi. Ci vuole circa un minuto…';
+  document.querySelectorAll('#go,#ok,#refix').forEach(function(b){b.disabled=true});
+  var parts=[{text:PROMPT+'\n\n'+input}];(att||[]).forEach(function(f){parts.push({inline_data:{mime_type:f.mime,data:f.data}})});
+  var i=0;
+  function attempt(search){
+    var m=MODELS[i];
+    return callGemini(key,parts,m,search).then(function(r){
+      if(r.status===404&&i<MODELS.length-1){i++;return attempt(search)}
+      if(!r.ok){var msg=(r.d&&r.d.error&&r.d.error.message)||('errore '+r.status);
+        if(r.status===400&&/API key/i.test(msg))throw new Error('La chiave Gemini non è valida. Controllala in I miei viaggi.');
+        if(r.status===429)throw new Error('Gemini è occupato o hai finito la quota gratuita. Riprova tra un minuto.');
+        if(search)return attempt(false);
+        throw new Error('Gemini non ha risposto: '+msg)}
+      var j=parseJson(r.d);
+      if(!j&&search)return attempt(false);
+      if(!j)throw new Error('Gemini ha risposto in modo confuso. Riprova.');
+      return j;
+    });
+  }
+  attempt(true).then(function(j){
+    busy=false;
+    j.id=keepId||('t'+Date.now());
+    ['flights','hotels','transfers','entry','arrival_steps','departure_steps','emergency','phrases','tips','missing'].forEach(function(k){if(!Array.isArray(j[k]))j[k]=[]});
+    j.airports=j.airports||{};j.missing=j.missing.filter(Boolean);j.tips=j.tips.filter(Boolean);
+    j.entry=j.entry.filter(function(e){return e&&e.title});
+    if(!j.flights.length&&!j.hotels.length)throw new Error('Non ho trovato né voli né hotel. Controlla il testo o le foto.');
+    draft=j;step='review';render();window.scrollTo(0,0);
+  }).catch(function(e){
+    busy=false;document.querySelectorAll('#go,#ok,#refix').forEach(function(b){b.disabled=false});
+    err(e.name==='AbortError'?'Ci sta mettendo troppo. Riprova.':(e.message||'Qualcosa è andato storto. Riprova.'));
+  });
+}
+
+/* ---------- avvio ---------- */
+render();
+setInterval(function(){if(tab==='oggi')hero()},60000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&tab==='oggi')hero()});
+
+/* ---------- aggiornamenti ---------- */
+var upd=document.getElementById('upd');
+function reloadFresh(){var done=function(){location.reload()};try{caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k)}))}).then(done,done)}catch(e){done()}}
+upd.addEventListener('click',reloadFresh);
+if('serviceWorker' in navigator&&location.protocol==='https:'){
+  var hadSW=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){if(hadSW)upd.classList.add('on')});
+  navigator.serviceWorker.register('sw.js').then(function(reg){window.swReg=reg;
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)reg.update().catch(function(){})})}).catch(function(){});
+}
+})();
+</script>
+</body>
+</html>
