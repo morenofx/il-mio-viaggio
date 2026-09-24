@@ -178,7 +178,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='4 · 24 set 2026';
+var VERSION='5 · 24 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -238,7 +238,7 @@ var SEED={
      checkin:'2026-10-07',checkin_time:'14:00',checkout:'2026-10-17',checkout_time:'12:00',notes:'Mood S Double Bed, annullamento gratuito fino a sab 3 ott, 10:00'}
   ],
   transfers:[
-    {from:'Aeroporto Suvarnabhumi',to:'Galleria 10 Hotel',minutes:75,how:'Bolt o Grab: scendi al piano 1 ed esci dalla porta 4. Oppure taxi ufficiale al piano 1. Mai i taxi offerti a voce.',price:'350–500 THB'},
+    {from:'Aeroporto Suvarnabhumi',to:'Galleria 10 Hotel',minutes:75,how:'Bolt o Grab: scendi al piano 1, dove ci sono i taxi, ma non fare la loro fila: esci dalla porta 4 e aspetta al cartello delle app. In chat all\'autista: Gate 4, floor 1. Oppure taxi ufficiale al piano 1. Mai i taxi offerti a voce.',price:'350–500 THB'},
     {from:'Galleria 10 Hotel',to:'Mood Hotel Pattaya',minutes:120,how:'Bolt o Grab porta a porta, oppure bus da Ekkamai (130–150 THB) e poi Bolt.',price:'1.200–1.600 THB'},
     {from:'Mood Hotel Pattaya',to:'Aeroporto Suvarnabhumi',minutes:120,how:'Bolt o Grab, oppure taxi a prezzo fisso chiesto alla reception. Scendi al piano 4, Partenze.',price:'1.200–1.600 THB'}
   ],
@@ -248,7 +248,7 @@ var SEED={
     {title:'Ritiro bagagli',text:'Sugli schermi cerca il tuo volo: ti indica il nastro (Belt).'},
     {title:'Dogana',text:'Corsia verde "Nothing to declare", poi esci nella hall arrivi al piano 2.'},
     {title:'Contanti',text:'Cambio migliore da SuperRich al piano B1. Gli ATM costano circa 220 THB a prelievo.'},
-    {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1 ed esci dalla porta 4 (Gate 4). Controlla la targa.'}
+    {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1: è il piano dei taxi, ma non fare la loro fila. Esci dalla porta 4 (Gate 4) e aspetta al cartello delle app. Non andare all\'entrata principale (piano 4) se l\'autista non te lo scrive. In chat: Gate 4, floor 1. Controlla la targa.'}
   ],
   departure_steps:[
     {title:'In aeroporto 3 ore prima',text:'Piano 4, Partenze. Cerca i banchi della compagnia sugli schermi e consegna la valigia.'},
@@ -274,7 +274,8 @@ var SEED={
 
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
-trips.forEach(function(t){if(t.id===SEED.id&&!t.checks){t.checks=SEED.checks;t.tips=SEED.tips;save('trips',trips)}});
+// il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<2){t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=2;save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
