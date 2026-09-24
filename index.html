@@ -73,6 +73,7 @@ p{margin:6px 0}
 .route{font-size:23px;font-weight:700}
 .fno{color:var(--soft);font-size:18px;text-align:right;align-self:center}
 .ftime{grid-column:1/-1;font-size:19px}
+.track{grid-column:1/-1;font-size:18px;font-weight:700;color:var(--jade);margin-top:4px}
 
 .btn{display:block;width:100%;text-align:center;font:inherit;font-weight:700;font-size:21px;
   padding:16px;border-radius:14px;border:0;margin:10px 0;text-decoration:none;cursor:pointer}
@@ -177,7 +178,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='1 · 24 set 2026';
+var VERSION='2 · 24 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -423,7 +424,7 @@ function vViaggio(T){
   var h='<h1>Voli e hotel</h1>';
   B.J.forEach(function(j){
     h+='<div class="card"><p class="sub">'+(j[0].leg==='ritorno'?'Ritorno':'Andata')+'</p>';
-    j.forEach(function(f){h+='<div class="flight"><span class="route">'+esc(B.city(f.from)+' → '+B.city(f.to))+'</span><span class="fno">'+esc(f.number)+'</span><span class="ftime">'+esc(cap(dayShort(f.depT,B.tz(f.from)))+', '+hm(f.depT,B.tz(f.from))+' → '+(ymd(f.arrT,B.tz(f.to))!==ymd(f.depT,B.tz(f.from))?dayShort(f.arrT,B.tz(f.to))+', ':'')+hm(f.arrT,B.tz(f.to)))+'</span></div>'});
+    j.forEach(function(f){h+='<div class="flight"><span class="route">'+esc(B.city(f.from)+' → '+B.city(f.to))+'</span><span class="fno">'+esc(f.number)+'</span><span class="ftime">'+esc(cap(dayShort(f.depT,B.tz(f.from)))+', '+hm(f.depT,B.tz(f.from))+' → '+(ymd(f.arrT,B.tz(f.to))!==ymd(f.depT,B.tz(f.from))?dayShort(f.arrT,B.tz(f.to))+', ':'')+hm(f.arrT,B.tz(f.to)))+'</span><a class="track" href="https://www.flightradar24.com/data/flights/'+encodeURIComponent(String(f.number).replace(/\s+/g,'').toLowerCase())+'" target="_blank" rel="noopener">Segui il volo in tempo reale →</a></div>'});
     h+='</div>';
   });
   if(B.J.length)h+='<p class="sub">Orari sempre in ora locale dell\'aeroporto.</p>';
