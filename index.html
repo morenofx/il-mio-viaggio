@@ -148,6 +148,23 @@ textarea{min-height:170px;resize:vertical}
 .sign{background:#1B1B1B;color:#FFD200;font-weight:700;font-size:17px;letter-spacing:.3px;border-radius:6px;padding:5px 10px;font-family:-apple-system,"Helvetica Neue",Arial,sans-serif}
 .photos{font-size:16px;font-weight:700;color:var(--jade);margin-left:4px}
 
+
+/* percorso in aeroporto, piano per piano */
+.route{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0}
+.floor{display:grid;grid-template-columns:52px 1fr;gap:10px;align-items:stretch}
+.flab{background:var(--navy);color:var(--onnavy);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:20px;line-height:1.1;text-align:center;padding:6px 2px}
+.flab small{font-size:12px;font-weight:400;opacity:.85}
+.fsteps{display:flex;flex-direction:column;gap:6px}
+.pill{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:18px;line-height:1.3}
+.pill b{display:block}
+.pill .sub{font-size:15px}
+.pill.goal{background:var(--gold);border-color:var(--gold);color:#14213D}
+.pill.goal .sub{color:#14213D}
+.pill.no{border-style:dashed;opacity:.8}
+.arr{text-align:center;color:var(--soft);font-size:15px;line-height:1.2;padding:2px 0}
+.arr::before{content:"↓";display:block;font-size:22px;color:var(--jade);font-weight:700}
+.down{margin:8px 0 8px 62px;background:var(--jadebg);border:1px solid var(--jade);border-radius:10px;padding:6px 12px;font-size:16px;font-weight:700;color:var(--jade)}
+.side{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center;z-index:5}
 nav .in{display:flex;max-width:640px;width:100%}
@@ -202,7 +219,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='8 · 25 set 2026';
+var VERSION='9 · 25 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -281,6 +298,16 @@ var SEED={
     {title:'Contanti',text:'Cambio migliore da SuperRich al piano B1. Gli ATM costano circa 220 THB a prelievo.',signs:['SuperRich','Currency Exchange'],photos:'SuperRich Suvarnabhumi airport B1'},
     {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1: è il piano dei taxi, ma non fare la loro fila. Esci dalla porta 4 (Gate 4) e aspetta al cartello delle app. Non andare all\'entrata principale (piano 4) se l\'autista non te lo scrive. In chat: Gate 4, floor 1. Controlla la targa.',signs:['Gate 4','Ride Hailing Pick-up'],photos:'Suvarnabhumi airport Grab pick up gate 4 level 1'}
   ],
+  arrival_route:{
+    start:{title:'Scendi dall\'aereo',text:'Segui i cartelli Arrivals: il corridoio può essere lungo, anche 10–15 minuti a piedi.'},
+    floors:[
+      {floor:'2',down:'',steps:[{title:'Immigrazione',text:'Passport Control: passaporto'},{title:'Ritiro bagagli',text:'Baggage Claim: nastro del tuo volo'},{title:'Dogana',text:'Nothing to Declare: corsia verde'},{title:'Hall arrivi',text:'Esci qui. Non accettare taxi offerti a voce.'}]},
+      {floor:'1',down:'Scala mobile o ascensore, un piano sotto',steps:[{title:'Taxi pubblici',text:'Stesso piano: non fare la loro fila',kind:'no'},{title:'Porta 4 (Gate 4)',text:'Esci sul marciapiede, cartello delle app',kind:'goal'},{title:'Bolt o Grab',text:'Controlla la targa e sali',kind:'goal'}]}
+    ],
+    side:{floor:'B1',title:'Se ti servono contanti',text:'SuperRich e il treno per la città sono al piano B1: fai prima il cambio, poi risali al piano 1.'},
+    map_url:'https://suvarnabhumi.airportthai.co.th/airport-map',
+    gmaps:'Suvarnabhumi Airport Arrivals'
+  },
   departure_steps:[
     {title:'In aeroporto 3 ore prima',text:'Piano 4, Partenze. Cerca i banchi della compagnia sugli schermi e consegna la valigia.'},
     {title:'Controlli',text:'Passaporto e sicurezza, poi al gate. I banchi chiudono circa 1 ora prima del volo.'}
@@ -306,7 +333,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<5){t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=5;save('trips',trips)}});
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<6){t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=6;save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
@@ -482,6 +509,21 @@ function signsHtml(s){
   return '<div class="signs">'+w.map(function(x){return '<span class="sign">'+esc(x)+'</span>'}).join('')+
     (s.photos?'<a class="photos" href="https://www.google.com/search?tbm=isch&q='+encodeURIComponent(s.photos)+'" target="_blank" rel="noopener">Vedi foto vere →</a>':'')+'</div>';
 }
+function routeHtml(r){
+  if(!r||!(r.floors||[]).length)return '';
+  function pill(p){return '<div class="pill'+(p.kind==='goal'?' goal':p.kind==='no'?' no':'')+'"><b>'+esc(p.title)+'</b>'+(p.text?'<span class="sub">'+esc(p.text)+'</span>':'')+'</div>'}
+  function lab(f){return '<div class="flab">'+esc(f)+'<small>'+(/^\d+$/.test(String(f))?'piano':'')+'</small></div>'}
+  var h='<div class="route">'+(r.start&&r.start.title?'<div class="pill" style="margin-bottom:8px"><b>'+esc(r.start.title)+'</b><span class="sub">'+esc(r.start.text||'')+'</span></div>':'');
+  r.floors.forEach(function(f,i){
+    if(i>0)h+='<div class="down">↓ '+esc(f.down||'Scendi di un piano')+'</div>';
+    h+='<div class="floor">'+lab(f.floor)+'<div class="fsteps">'+(f.steps||[]).map(pill).join('<div class="arr"></div>')+'</div></div>';
+  });
+  if(r.side&&r.side.title)h+='<div class="side"><div class="floor">'+lab(r.side.floor||'')+'<div class="fsteps">'+pill(r.side)+'</div></div></div>';
+  h+='</div>';
+  if(safeUrl(r.map_url))h+='<a class="btn alt" href="'+esc(safeUrl(r.map_url))+'" target="_blank" rel="noopener">Mappa ufficiale dell\'aeroporto</a>';
+  if(r.gmaps)h+='<a class="btn alt" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(r.gmaps)+'" target="_blank" rel="noopener">Aeroporto in Google Maps</a>';
+  return h+'<p class="sub">Disegno semplificato, non in scala. Le mappe si aprono solo con internet: guardale a casa.</p>';
+}
 function trHtml(tr,i){
   var h='<div class="card tip"><b>'+esc((tr.from||'')+' → '+(tr.to||''))+'</b><p>'+esc(tr.how)+'</p><p class="sub">'+esc([tr.price,tr.minutes?'circa '+dur(tr.minutes):''].filter(Boolean).join(' · '))+'</p></div>';
   if((tr.steps||[]).length){h+='<ol class="steps">';tr.steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
@@ -494,7 +536,8 @@ function vViaggio(T){
   B.J.forEach(function(j){j.forEach(function(f,k){if(k>0&&j[0].leg!=='ritorno'){var p=j[k-1],g=(f.depT-p.arrT)/MIN,ap=(T.airports||{})[p.to]||{};
     h+='<h2>Scalo a '+esc(B.city(p.to))+' ('+esc(dur(g))+')</h2><div class="card"><p>Scendi dall\'aereo e <b>non uscire</b>: niente controllo passaporti. Segui i cartelli e vai al gate del volo '+esc(f.number)+'.</p>'+
       signsHtml({signs:['Transfer','Flight Connections'],photos:(ap.name||B.city(p.to))+' airport transfer flight connections sign'})+'</div>'}})});
-  if((T.arrival_steps||[]).length){h+='<h2>Appena atterri</h2><ol class="steps">';T.arrival_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+signsHtml(s)+'</li>'});h+='</ol>'}
+  if(T.arrival_route&&(T.arrival_route.floors||[]).length)h+='<h2>Appena atterri: il percorso</h2>'+routeHtml(T.arrival_route);
+  if((T.arrival_steps||[]).length){h+='<h2>Appena atterri, passo per passo</h2><ol class="steps">';T.arrival_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+signsHtml(s)+'</li>'});h+='</ol>'}
   B.H.forEach(function(x,i){
     var tr=(T.transfers||[])[i];
     if(tr)h+=trHtml(tr,i);
@@ -723,6 +766,7 @@ var PROMPT=[
 '- please_take_me: "Per favore portami a:" nella lingua del paese.',
 '- entry: moduli o permessi da fare prima di arrivare (titolo, testo breve, url ufficiale https, opens = data YYYY-MM-DD da cui si può compilare, "" se sempre).',
 '- arrival_steps e departure_steps: per ogni passo aggiungi signs = le parole esatte scritte sui cartelli da seguire (in inglese o come appaiono, massimo 3) e photos = una ricerca in inglese per trovare foto vere di quel cartello in quell\'aeroporto.',
+'- arrival_route: il percorso nel primo aeroporto di arrivo, piano per piano, dall\'aereo all\'uscita dove si prende il taxi o l\'app: floors in ordine di cammino, ognuno con floor (numero o nome del piano come nei cartelli), down (come si arriva a quel piano, vuoto per il primo), steps brevi (kind "goal" per il punto dove si prende il mezzo, "no" per cose da evitare); side = cosa utile su un altro piano (cambio, treno); map_url = pagina ufficiale https della mappa dell\'aeroporto; gmaps = ricerca Google Maps dell\'area arrivi.',
 '- arrival_steps: 4-6 passi pratici dall\'atterraggio all\'uscita nel primo aeroporto di arrivo (immigrazione, bagagli, dogana, contanti, taxi/app con piano e porta). departure_steps: 2-3 passi per il volo di ritorno in quell\'aeroporto (piano partenze, tempi).',
 '- currency: code ISO, name in italiano, per_eur = quante unità per 1 euro oggi.',
 '- phrases: 8 frasi utili pronunciabili (scritte in lettere latine) con traduzione italiana.',
@@ -739,6 +783,7 @@ var PROMPT=[
 '"hotels":[{"name":"","address":"","address_local":"","phone":"","checkin":"","checkin_time":"","checkout":"","checkout_time":"","notes":""}],',
 '"transfers":[{"from":"","to":"","minutes":0,"how":"","price":"","steps":[{"title":"","text":""}],"stop":{"name":"","address":"","address_local":""}}],',
 '"entry":[{"title":"","text":"","url":"","opens":""}],',
+'"arrival_route":{"start":{"title":"","text":""},"floors":[{"floor":"","down":"","steps":[{"title":"","text":"","kind":""}]}],"side":{"floor":"","title":"","text":""},"map_url":"","gmaps":""},',
 '"arrival_steps":[{"title":"","text":"","signs":[""],"photos":""}],"departure_steps":[{"title":"","text":"","signs":[""],"photos":""}],',
 '"currency":{"code":"","name":"","per_eur":0},"emergency":[{"label":"","number":""}],"embassy":{"label":"","number":""},',
 '"phrases":[{"local":"","it":""}],"tips":[""],"checks":[{"title":"","text":"","imp":false}],"missing":[""]}'
