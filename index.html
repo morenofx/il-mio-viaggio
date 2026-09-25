@@ -219,7 +219,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='9 · 25 set 2026';
+var VERSION='10 · 25 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -293,8 +293,9 @@ var SEED={
   entry:[{title:'TDAC, il modulo d\'ingresso online',text:'Obbligatorio. Si compila al massimo 3 giorni prima dell\'arrivo: volo G9816, hotel Galleria 10. Salva la conferma nel telefono.',url:'https://tdac.immigration.go.th/arrival-card/',opens:'2026-10-01'}],
   arrival_steps:[
     {title:'Immigrazione',text:'Appena scendi dall\'aereo segui i cartelli. Mostra il passaporto. Attesa possibile 30–60 minuti.',signs:['Arrivals','Immigration','Passport Control'],photos:'Suvarnabhumi airport immigration arrival sign'},
-    {title:'Ritiro bagagli',text:'Sugli schermi cerca il tuo volo: ti indica il numero del nastro.',signs:['Baggage Claim','Belt'],photos:'Suvarnabhumi airport baggage claim sign'},
+    {title:'Ritiro bagagli',text:'Sugli schermi cerca il tuo volo: ti indica il numero del nastro. Le valigie possono metterci 30–40 minuti: è normale.',signs:['Baggage Claim','Belt'],photos:'Suvarnabhumi airport baggage claim sign'},
     {title:'Dogana',text:'Prendi la corsia verde, poi esci nella hall arrivi al piano 2.',signs:['Customs','Nothing to Declare'],photos:'Suvarnabhumi airport customs nothing to declare green channel'},
+    {title:'Se la valigia non arriva',text:'Non uscire dalla sala bagagli: prima della dogana cerca il banco Lost & Found (o Baggage Services). Mostra passaporto, carta d\'imbarco e lo scontrino dell\'etichetta della valigia. Fatti fare il modulo (si chiama PIR) e tieni il numero di pratica: la valigia te la portano in hotel. Dai l\'indirizzo del Galleria 10. Conserva gli scontrini di quello che compri nell\'attesa.',signs:['Lost & Found','Baggage Services'],photos:'Suvarnabhumi airport lost and found baggage services arrival'},
     {title:'Contanti',text:'Cambio migliore da SuperRich al piano B1. Gli ATM costano circa 220 THB a prelievo.',signs:['SuperRich','Currency Exchange'],photos:'SuperRich Suvarnabhumi airport B1'},
     {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1: è il piano dei taxi, ma non fare la loro fila. Esci dalla porta 4 (Gate 4) e aspetta al cartello delle app. Non andare all\'entrata principale (piano 4) se l\'autista non te lo scrive. In chat: Gate 4, floor 1. Controlla la targa.',signs:['Gate 4','Ride Hailing Pick-up'],photos:'Suvarnabhumi airport Grab pick up gate 4 level 1'}
   ],
@@ -325,7 +326,8 @@ var SEED={
     {title:'Scalo di 1 ora',text:'Controlla che i voli G9696 e G9816 abbiano lo stesso codice di prenotazione: così, se perdi la coincidenza, Air Arabia ti rimette sul volo dopo.',imp:true},
     {title:'Mood Hotel',text:'Annullamento gratuito fino a sabato 3 ottobre alle 10:00. Dopo non si annulla più.',imp:true},
     {title:'Scalo di notte al ritorno',text:'10 ore a Sharjah: valuta una lounge o un posto per dormire in aeroporto.'},
-    {title:'Bolt e Grab',text:'Registrali col numero italiano prima di partire: l\'SMS di conferma arriva lì.'}
+    {title:'Bolt e Grab',text:'Registrali col numero italiano prima di partire: l\'SMS di conferma arriva lì.'},
+    {title:'Valigia sicura',text:'Foto alla valigia (fuori e dentro), AirTag dentro se ce l\'hai. Al banco di Bergamo controlla che sull\'etichetta ci sia BKK e tieni lo scontrino. Nel bagaglio a mano: medicine, caricabatterie e un cambio per 1–2 giorni.',imp:true}
   ],
   missing:[]
 };
@@ -333,7 +335,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<6){t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=6;save('trips',trips)}});
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<7){t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=7;save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
@@ -767,6 +769,7 @@ var PROMPT=[
 '- entry: moduli o permessi da fare prima di arrivare (titolo, testo breve, url ufficiale https, opens = data YYYY-MM-DD da cui si può compilare, "" se sempre).',
 '- arrival_steps e departure_steps: per ogni passo aggiungi signs = le parole esatte scritte sui cartelli da seguire (in inglese o come appaiono, massimo 3) e photos = una ricerca in inglese per trovare foto vere di quel cartello in quell\'aeroporto.',
 '- arrival_route: il percorso nel primo aeroporto di arrivo, piano per piano, dall\'aereo all\'uscita dove si prende il taxi o l\'app: floors in ordine di cammino, ognuno con floor (numero o nome del piano come nei cartelli), down (come si arriva a quel piano, vuoto per il primo), steps brevi (kind "goal" per il punto dove si prende il mezzo, "no" per cose da evitare); side = cosa utile su un altro piano (cambio, treno); map_url = pagina ufficiale https della mappa dell\'aeroporto; gmaps = ricerca Google Maps dell\'area arrivi.',
+'- arrival_steps: includi sempre un passo "Se la valigia non arriva" (banco Lost & Found prima della dogana, modulo PIR, numero di pratica, indirizzo dell\'hotel).',
 '- arrival_steps: 4-6 passi pratici dall\'atterraggio all\'uscita nel primo aeroporto di arrivo (immigrazione, bagagli, dogana, contanti, taxi/app con piano e porta). departure_steps: 2-3 passi per il volo di ritorno in quell\'aeroporto (piano partenze, tempi).',
 '- currency: code ISO, name in italiano, per_eur = quante unità per 1 euro oggi.',
 '- phrases: 8 frasi utili pronunciabili (scritte in lettere latine) con traduzione italiana.',
