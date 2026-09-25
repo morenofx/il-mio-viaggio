@@ -130,6 +130,19 @@ textarea{min-height:170px;resize:vertical}
 .empty .big{font-size:60px}
 .ver{font-size:16px;color:var(--soft);text-align:center;margin-top:4px}
 
+/* prenotazioni salvate nel telefono */
+.dochint{font-size:16px;color:var(--soft);margin:-2px 0 8px}
+#docv{position:fixed;inset:0;background:#fff;z-index:11;display:none;flex-direction:column}
+#docv.on{display:flex}
+#docv .bar2{display:flex;gap:8px;align-items:center;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;background:#14213D;color:#fff}
+#docv .bar2 b{flex:1;font-size:18px;line-height:1.2}
+#docv .bar2 button{background:#F2A900;color:#14213D;border:0;border-radius:10px;font:inherit;font-weight:700;font-size:17px;padding:8px 14px;cursor:pointer}
+#docv .body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;background:#fff}
+#docv .body img{display:block;width:100%;height:auto}
+#docv .body iframe{display:block;width:100%;height:100%;border:0}
+#docv .foot{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#F3F6F5}
+#docv .foot a,#docv .foot button{flex:1;text-align:center;font:inherit;font-size:16px;font-weight:700;padding:10px;border-radius:10px;border:2px solid #D5DDE0;background:#fff;color:#14213D;text-decoration:none;cursor:pointer}
+
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center;z-index:5}
 nav .in{display:flex;max-width:640px;width:100%}
@@ -167,6 +180,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 
 <button id="upd">C'è una versione nuova · tocca per aggiornare</button>
 
+<div id="docv" role="dialog" aria-modal="true" aria-label="Prenotazione">
+  <div class="bar2"><b id="doct"></b><button id="docclose">Chiudi</button></div>
+  <div class="body" id="docb"></div>
+  <div class="foot"><a id="docopen" target="_blank" rel="noopener">Apri grande</a><button id="docrm">Togli</button></div>
+</div>
+
 <div id="driver" role="dialog" aria-modal="true" aria-label="Indirizzo per l'autista">
   <div class="lbl">Please take me to:</div>
   <div class="dn" id="dn"></div>
@@ -178,7 +197,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='6 · 24 set 2026';
+var VERSION='7 · 25 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -232,10 +251,10 @@ var SEED={
   hotels:[
     {name:'Galleria 10 Hotel Bangkok',address:'21 Sukhumvit Soi 10, Sukhumvit Road, Klongtoey, Bangkok 10110',
      address_local:'สุขุมวิท ซอย 10<br>แขวงคลองเตย เขตคลองเตย<br>กรุงเทพฯ 10110',
-     checkin:'2026-10-04',checkin_time:'14:00',checkout:'2026-10-07',checkout_time:'12:00',notes:'Deluxe Chill Room, non rimborsabile'},
+     checkin:'2026-10-04',checkin_time:'14:00',checkout:'2026-10-07',checkout_time:'12:00',notes:'Deluxe Chill Room, non rimborsabile',phone:'+66 2 615 0999'},
     {name:'Mood Hotel Pattaya',address:'115/11 Moo 9, Pattaya Beach Road, Pattaya',
      address_local:'115/11 หมู่ 9 ถนนพัทยาสาย&nbsp;1<br>พัทยา ชลบุรี',
-     checkin:'2026-10-07',checkin_time:'14:00',checkout:'2026-10-17',checkout_time:'12:00',notes:'Mood S Double Bed, annullamento gratuito fino a sab 3 ott, 10:00'}
+     checkin:'2026-10-07',checkin_time:'14:00',checkout:'2026-10-17',checkout_time:'12:00',notes:'Mood S Double Bed, annullamento gratuito fino a sab 3 ott, 10:00',phone:'+66 38 259 511'}
   ],
   transfers:[
     {from:'Aeroporto Suvarnabhumi',to:'Galleria 10 Hotel',minutes:75,how:'Bolt o Grab: scendi al piano 1, dove ci sono i taxi, ma non fare la loro fila: esci dalla porta 4 e aspetta al cartello delle app. In chat all\'autista: Gate 4, floor 1. Oppure taxi ufficiale al piano 1. Mai i taxi offerti a voce.',price:'350–500 THB'},
@@ -282,7 +301,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<3){t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=3;save('trips',trips)}});
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<4){(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=4;save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
@@ -384,6 +403,7 @@ function render(){
   if(tab==='oggi')hero();
   if(tab==='fasi')bindFasi();
   if(tab==='utili')bindConv(T);
+  if(tab==='viaggio')drawDocs();
 }
 
 function driverButtons(T){
@@ -465,8 +485,8 @@ function vViaggio(T){
   B.H.forEach(function(x,i){
     var tr=(T.transfers||[])[i];
     if(tr)h+=trHtml(tr,i);
-    h+='<h2>'+esc(x.name)+'</h2><div class="card hotel"><div class="name">'+esc(x.name)+'</div><p>'+esc(x.address)+'</p><p><b>Check-in</b> '+esc(dayShort(z2e(x.checkin,B.dtz),B.dtz))+', dalle '+esc(x.checkin_time||'14:00')+'<br><b>Check-out</b> '+esc(dayShort(z2e(x.checkout,B.dtz),B.dtz))+', entro le '+esc(x.checkout_time||'12:00')+'</p>'+(x.notes?'<p class="sub">'+esc(x.notes)+'</p>':'')+'</div>'+
-      '<button class="btn main" data-driver="h'+i+'">Mostra all\'autista</button><a class="btn alt" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.name+' '+x.address)+'" target="_blank" rel="noopener">Apri in Google Maps</a>';
+    h+='<h2>'+esc(x.name)+'</h2><div class="card hotel"><div class="name">'+esc(x.name)+'</div><p>'+esc(x.address)+'</p><p><b>Check-in</b> '+esc(dayShort(z2e(x.checkin,B.dtz),B.dtz))+', dalle '+esc(x.checkin_time||'14:00')+'<br><b>Check-out</b> '+esc(dayShort(z2e(x.checkout,B.dtz),B.dtz))+', entro le '+esc(x.checkout_time||'12:00')+'</p>'+(x.notes?'<p class="sub">'+esc(x.notes)+'</p>':'')+(x.phone?'<p><a href="tel:'+esc(telOf(x.phone))+'"><b>Chiama l\'hotel: '+esc(x.phone)+'</b></a></p>':'')+'</div>'+
+      '<button class="btn main" data-driver="h'+i+'">Mostra all\'autista</button><div data-doc="'+esc(T.id+'-h'+i)+'" data-docname="'+esc('Prenotazione '+x.name)+'"></div><a class="btn alt" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.name+' '+x.address)+'" target="_blank" rel="noopener">Apri in Google Maps</a>';
   });
   var last=(T.transfers||[])[B.H.length];
   if(last)h+='<h2>Verso l\'aeroporto</h2>'+trHtml(last,B.H.length);
@@ -493,6 +513,52 @@ function bindConv(T){
   loc.addEventListener('input',function(){eur.value=loc.value===''?'':rd(parseFloat(loc.value)/r(),2)});
   eur.addEventListener('input',function(){loc.value=eur.value===''?'':rd(parseFloat(eur.value)*r(),r()>20?0:2)});
   rate.addEventListener('input',function(){save(rk,rate.value);if(loc.value!=='')eur.value=rd(parseFloat(loc.value)/r(),2)});
+}
+
+
+/* ---------- prenotazioni: il file resta solo in questo telefono ---------- */
+function db(){return new Promise(function(ok,ko){var r=indexedDB.open('viaggio-docs',1);r.onupgradeneeded=function(){r.result.createObjectStore('docs')};r.onsuccess=function(){ok(r.result)};r.onerror=function(){ko(r.error)}})}
+function dbDo(mode,fn){return db().then(function(d){return new Promise(function(ok,ko){var t=d.transaction('docs',mode),st=t.objectStore('docs'),q=fn(st);t.oncomplete=function(){ok(q&&q.result)};t.onerror=function(){ko(t.error)}})})}
+function docGet(k){return dbDo('readonly',function(s){return s.get(k)})}
+function docPut(k,v){return dbDo('readwrite',function(s){return s.put(v,k)})}
+function docDel(k){return dbDo('readwrite',function(s){return s.delete(k)})}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+var docUrl=null,docKey=null;
+function showDoc(k,name,d){
+  if(docUrl)URL.revokeObjectURL(docUrl);
+  docKey=k;docUrl=URL.createObjectURL(d.blob);
+  document.getElementById('doct').textContent=name;
+  var b=document.getElementById('docb');b.innerHTML='';
+  var el=document.createElement(/pdf/.test(d.type)?'iframe':'img');
+  if(el.tagName==='IMG')el.alt=name;else el.title=name;
+  el.src=docUrl;b.appendChild(el);
+  document.getElementById('docopen').href=docUrl;
+  document.getElementById('docv').classList.add('on');
+}
+function closeDoc(){document.getElementById('docv').classList.remove('on')}
+document.getElementById('docclose').addEventListener('click',closeDoc);
+document.getElementById('docrm').addEventListener('click',function(){
+  if(!confirm('Togliere questa prenotazione dall\'app? Il file originale resta dove l\'avevi.'))return;
+  docDel(docKey).then(function(){closeDoc();drawDocs()});
+});
+function drawDocs(){
+  app.querySelectorAll('[data-doc]').forEach(function(box){
+    var k=box.dataset.doc,name=box.dataset.docname;
+    docGet(k).then(function(d){
+      if(d){
+        box.innerHTML='<button class="btn main">📄 Mostra la prenotazione</button>';
+        box.querySelector('button').addEventListener('click',function(){showDoc(k,name,d)});
+      }else{
+        box.innerHTML='<label class="btn alt">📄 Aggiungi la prenotazione<input type="file" accept="image/*,application/pdf" hidden></label>'+
+          '<p class="dochint">PDF o foto della conferma. Resta salvata solo su questo telefono e si vede anche senza internet.</p>';
+        box.querySelector('input').addEventListener('change',function(){
+          var f=this.files[0];if(!f)return;
+          docPut(k,{blob:f,type:f.type,name:f.name}).then(function(){drawDocs();showDoc(k,name,{blob:f,type:f.type})})
+            .catch(function(){alert('Non riesco a salvare il file. Riprova.')});
+        });
+      }
+    }).catch(function(){box.innerHTML='<p class="dochint">Su questo browser non posso salvare file.</p>'});
+  });
 }
 
 /* ---------- schermata per l'autista ---------- */
@@ -574,6 +640,7 @@ function bindViaggi(){
     app.querySelectorAll('[data-fix]').forEach(function(b){b.addEventListener('click',function(){editing=b.dataset.fix;step='form';files=[];render()})});
     app.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){
       var t=tripById(b.dataset.del);if(!confirm('Eliminare il viaggio "'+t.name+'"?'))return;
+      (t.hotels||[]).forEach(function(h,i){docDel(t.id+'-h'+i).catch(function(){})});
       trips=trips.filter(function(x){return x!==t});save('trips',trips);
       if(activeId===t.id){activeId=trips[0]&&trips[0].id;save('active',activeId)}
       render();
@@ -655,7 +722,7 @@ var PROMPT=[
 '{"name":"","country":"","dest_tz":"","home_city":"","home_to_airport_minutes":90,"please_take_me":"",',
 '"airports":{"XXX":{"city":"","name":"","tz":"","address_local":""}},',
 '"flights":[{"number":"","airline":"","from":"","to":"","dep":"","arr":"","leg":"andata"}],',
-'"hotels":[{"name":"","address":"","address_local":"","checkin":"","checkin_time":"","checkout":"","checkout_time":"","notes":""}],',
+'"hotels":[{"name":"","address":"","address_local":"","phone":"","checkin":"","checkin_time":"","checkout":"","checkout_time":"","notes":""}],',
 '"transfers":[{"from":"","to":"","minutes":0,"how":"","price":"","steps":[{"title":"","text":""}],"stop":{"name":"","address":"","address_local":""}}],',
 '"entry":[{"title":"","text":"","url":"","opens":""}],',
 '"arrival_steps":[{"title":"","text":""}],"departure_steps":[{"title":"","text":""}],',
