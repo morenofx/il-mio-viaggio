@@ -143,6 +143,11 @@ textarea{min-height:170px;resize:vertical}
 #docv .foot{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:#F3F6F5}
 #docv .foot a,#docv .foot button{flex:1;text-align:center;font:inherit;font-size:16px;font-weight:700;padding:10px;border-radius:10px;border:2px solid #D5DDE0;background:#fff;color:#14213D;text-decoration:none;cursor:pointer}
 
+/* cartelli dell'aeroporto: le parole da cercare */
+.signs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 4px}
+.sign{background:#1B1B1B;color:#FFD200;font-weight:700;font-size:17px;letter-spacing:.3px;border-radius:6px;padding:5px 10px;font-family:-apple-system,"Helvetica Neue",Arial,sans-serif}
+.photos{font-size:16px;font-weight:700;color:var(--jade);margin-left:4px}
+
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center;z-index:5}
 nav .in{display:flex;max-width:640px;width:100%}
@@ -197,7 +202,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='7 · 25 set 2026';
+var VERSION='8 · 25 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -270,11 +275,11 @@ var SEED={
   ],
   entry:[{title:'TDAC, il modulo d\'ingresso online',text:'Obbligatorio. Si compila al massimo 3 giorni prima dell\'arrivo: volo G9816, hotel Galleria 10. Salva la conferma nel telefono.',url:'https://tdac.immigration.go.th/arrival-card/',opens:'2026-10-01'}],
   arrival_steps:[
-    {title:'Immigrazione',text:'Segui i cartelli Arrival / Immigration. Mostra il passaporto. Attesa possibile 30–60 minuti.'},
-    {title:'Ritiro bagagli',text:'Sugli schermi cerca il tuo volo: ti indica il nastro (Belt).'},
-    {title:'Dogana',text:'Corsia verde "Nothing to declare", poi esci nella hall arrivi al piano 2.'},
-    {title:'Contanti',text:'Cambio migliore da SuperRich al piano B1. Gli ATM costano circa 220 THB a prelievo.'},
-    {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1: è il piano dei taxi, ma non fare la loro fila. Esci dalla porta 4 (Gate 4) e aspetta al cartello delle app. Non andare all\'entrata principale (piano 4) se l\'autista non te lo scrive. In chat: Gate 4, floor 1. Controlla la targa.'}
+    {title:'Immigrazione',text:'Appena scendi dall\'aereo segui i cartelli. Mostra il passaporto. Attesa possibile 30–60 minuti.',signs:['Arrivals','Immigration','Passport Control'],photos:'Suvarnabhumi airport immigration arrival sign'},
+    {title:'Ritiro bagagli',text:'Sugli schermi cerca il tuo volo: ti indica il numero del nastro.',signs:['Baggage Claim','Belt'],photos:'Suvarnabhumi airport baggage claim sign'},
+    {title:'Dogana',text:'Prendi la corsia verde, poi esci nella hall arrivi al piano 2.',signs:['Customs','Nothing to Declare'],photos:'Suvarnabhumi airport customs nothing to declare green channel'},
+    {title:'Contanti',text:'Cambio migliore da SuperRich al piano B1. Gli ATM costano circa 220 THB a prelievo.',signs:['SuperRich','Currency Exchange'],photos:'SuperRich Suvarnabhumi airport B1'},
+    {title:'Bolt o Grab',text:'Prenota mentre sei dentro, poi scendi al piano 1: è il piano dei taxi, ma non fare la loro fila. Esci dalla porta 4 (Gate 4) e aspetta al cartello delle app. Non andare all\'entrata principale (piano 4) se l\'autista non te lo scrive. In chat: Gate 4, floor 1. Controlla la targa.',signs:['Gate 4','Ride Hailing Pick-up'],photos:'Suvarnabhumi airport Grab pick up gate 4 level 1'}
   ],
   departure_steps:[
     {title:'In aeroporto 3 ore prima',text:'Piano 4, Partenze. Cerca i banchi della compagnia sugli schermi e consegna la valigia.'},
@@ -301,7 +306,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<4){(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=4;save('trips',trips)}});
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<5){t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=5;save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
@@ -472,6 +477,11 @@ function flightsHtml(){
   });
   return h;
 }
+function signsHtml(s){
+  var w=(s.signs||[]).filter(Boolean);if(!w.length&&!s.photos)return '';
+  return '<div class="signs">'+w.map(function(x){return '<span class="sign">'+esc(x)+'</span>'}).join('')+
+    (s.photos?'<a class="photos" href="https://www.google.com/search?tbm=isch&q='+encodeURIComponent(s.photos)+'" target="_blank" rel="noopener">Vedi foto vere →</a>':'')+'</div>';
+}
 function trHtml(tr,i){
   var h='<div class="card tip"><b>'+esc((tr.from||'')+' → '+(tr.to||''))+'</b><p>'+esc(tr.how)+'</p><p class="sub">'+esc([tr.price,tr.minutes?'circa '+dur(tr.minutes):''].filter(Boolean).join(' · '))+'</p></div>';
   if((tr.steps||[]).length){h+='<ol class="steps">';tr.steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
@@ -481,7 +491,10 @@ function trHtml(tr,i){
 function vViaggio(T){
   var h='<h1>Voli e hotel</h1>'+flightsHtml();
   if(B.J.length)h+='<p class="sub">Orari sempre in ora locale dell\'aeroporto.</p>';
-  if((T.arrival_steps||[]).length){h+='<h2>Appena atterri</h2><ol class="steps">';T.arrival_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
+  B.J.forEach(function(j){j.forEach(function(f,k){if(k>0&&j[0].leg!=='ritorno'){var p=j[k-1],g=(f.depT-p.arrT)/MIN,ap=(T.airports||{})[p.to]||{};
+    h+='<h2>Scalo a '+esc(B.city(p.to))+' ('+esc(dur(g))+')</h2><div class="card"><p>Scendi dall\'aereo e <b>non uscire</b>: niente controllo passaporti. Segui i cartelli e vai al gate del volo '+esc(f.number)+'.</p>'+
+      signsHtml({signs:['Transfer','Flight Connections'],photos:(ap.name||B.city(p.to))+' airport transfer flight connections sign'})+'</div>'}})});
+  if((T.arrival_steps||[]).length){h+='<h2>Appena atterri</h2><ol class="steps">';T.arrival_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+signsHtml(s)+'</li>'});h+='</ol>'}
   B.H.forEach(function(x,i){
     var tr=(T.transfers||[])[i];
     if(tr)h+=trHtml(tr,i);
@@ -490,7 +503,7 @@ function vViaggio(T){
   });
   var last=(T.transfers||[])[B.H.length];
   if(last)h+='<h2>Verso l\'aeroporto</h2>'+trHtml(last,B.H.length);
-  if((T.departure_steps||[]).length){h+='<ol class="steps">';T.departure_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+'</li>'});h+='</ol>'}
+  if((T.departure_steps||[]).length){h+='<ol class="steps">';T.departure_steps.forEach(function(s){h+='<li><b class="t">'+esc(s.title)+'</b>'+esc(s.text)+signsHtml(s)+'</li>'});h+='</ol>'}
   return h;
 }
 function vUtili(T){
@@ -709,6 +722,7 @@ var PROMPT=[
 '- home_to_airport_minutes: tempo dalla città di partenza indicata all\'aeroporto del primo volo (90 se non indicata).',
 '- please_take_me: "Per favore portami a:" nella lingua del paese.',
 '- entry: moduli o permessi da fare prima di arrivare (titolo, testo breve, url ufficiale https, opens = data YYYY-MM-DD da cui si può compilare, "" se sempre).',
+'- arrival_steps e departure_steps: per ogni passo aggiungi signs = le parole esatte scritte sui cartelli da seguire (in inglese o come appaiono, massimo 3) e photos = una ricerca in inglese per trovare foto vere di quel cartello in quell\'aeroporto.',
 '- arrival_steps: 4-6 passi pratici dall\'atterraggio all\'uscita nel primo aeroporto di arrivo (immigrazione, bagagli, dogana, contanti, taxi/app con piano e porta). departure_steps: 2-3 passi per il volo di ritorno in quell\'aeroporto (piano partenze, tempi).',
 '- currency: code ISO, name in italiano, per_eur = quante unità per 1 euro oggi.',
 '- phrases: 8 frasi utili pronunciabili (scritte in lettere latine) con traduzione italiana.',
@@ -725,7 +739,7 @@ var PROMPT=[
 '"hotels":[{"name":"","address":"","address_local":"","phone":"","checkin":"","checkin_time":"","checkout":"","checkout_time":"","notes":""}],',
 '"transfers":[{"from":"","to":"","minutes":0,"how":"","price":"","steps":[{"title":"","text":""}],"stop":{"name":"","address":"","address_local":""}}],',
 '"entry":[{"title":"","text":"","url":"","opens":""}],',
-'"arrival_steps":[{"title":"","text":""}],"departure_steps":[{"title":"","text":""}],',
+'"arrival_steps":[{"title":"","text":"","signs":[""],"photos":""}],"departure_steps":[{"title":"","text":"","signs":[""],"photos":""}],',
 '"currency":{"code":"","name":"","per_eur":0},"emergency":[{"label":"","number":""}],"embassy":{"label":"","number":""},',
 '"phrases":[{"local":"","it":""}],"tips":[""],"checks":[{"title":"","text":"","imp":false}],"missing":[""]}'
 ].join('\n');
