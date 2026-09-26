@@ -220,7 +220,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='13 · 26 set 2026';
+var VERSION='14 · 26 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -315,7 +315,7 @@ var SEED={
     {title:'Controlli',text:'Passaporto e sicurezza, poi al gate. I banchi chiudono circa 1 ora prima del volo.'}
   ],
   currency:{code:'THB',name:'baht',per_eur:38},
-  emergency:[{label:'Assicurazione Allianz 24h: chiama PRIMA del medico',number:'+39 02 2369 5862'},{label:'Allianz, per aprire un sinistro',number:'+39 02 2660 9690'},{label:'Polizia turistica (parla inglese)',number:'1155'},{label:'Polizia',number:'191'},{label:'Ambulanza',number:'1669'}],
+  emergency:[{label:'Assicurazione Allianz 24h: chiama PRIMA del medico',number:'+39 02 2369 5862'},{label:'Allianz, per aprire un sinistro',number:'+39 02 2660 9690'},{label:'Ambasciata d\'Italia: emergenze gravi, 24 ore su 24',number:'+66 81 825 6103'},{label:'Polizia turistica (parla inglese)',number:'1155'},{label:'Polizia',number:'191'},{label:'Ambulanza',number:'1669'}],
   embassy:{label:'Ambasciata d\'Italia a Bangkok',number:'+66 2 250 4970'},
   phrases:[
     {local:'Meter, please',it:'Tassametro, per favore'},{local:'Khob khun khrap',it:'Grazie'},{local:'Sawasdee khrap',it:'Ciao, buongiorno'},
@@ -328,6 +328,7 @@ var SEED={
     {title:'Scalo di notte al ritorno',text:'10 ore a Sharjah: valuta una lounge o un posto per dormire in aeroporto.'},
     {title:'Bolt e Grab',text:'Registrali col numero italiano prima di partire: l\'SMS di conferma arriva lì.'},
     {title:'Assicurazione Allianz',text:'Se stai male o ti fai male: chiama la Centrale Operativa PRIMA di andare dal medico, se no rimborsano al massimo 500 €. Tieni la polizza nel telefono (scheda Utili).',imp:true},
+    {title:'Viaggiare Sicuri',text:'Registra il viaggio su Dove Siamo Nel Mondo (dovesiamonelmondo.it) oppure scarica l\'app Viaggiare Sicuri: accendi posizione e notifiche. In caso di emergenza l\'Ambasciata sa che sei lì.',imp:true},
     {title:'Valigia sicura',text:'Foto alla valigia (fuori e dentro), AirTag dentro se ce l\'hai. Al banco di Bergamo controlla che sull\'etichetta ci sia BKK e tieni lo scontrino. Nel bagaglio a mano: medicine, caricabatterie e un cambio per 1–2 giorni.',imp:true}
   ],
   missing:[]
@@ -336,7 +337,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<10){t.emergency=SEED.emergency;t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=10;
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<11){t.emergency=SEED.emergency;t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=11;
   // il Mood Hotel e' passato ad Agoda: la ricevuta Revolut salvata prima non vale piu'
   try{docDel(t.id+'-h1').catch(function(){})}catch(e){}save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
@@ -795,6 +796,7 @@ var PROMPT=[
 '- arrival_route: il percorso nel primo aeroporto di arrivo, piano per piano, dall\'aereo all\'uscita dove si prende il taxi o l\'app: floors in ordine di cammino, ognuno con floor (numero o nome del piano come nei cartelli), down (come si arriva a quel piano, vuoto per il primo), steps brevi (kind "goal" per il punto dove si prende il mezzo, "no" per cose da evitare); side = cosa utile su un altro piano (cambio, treno); map_url = pagina ufficiale https della mappa dell\'aeroporto; gmaps = ricerca Google Maps dell\'area arrivi.',
 '- arrival_steps: includi sempre un passo "Se la valigia non arriva" (banco Lost & Found prima della dogana, modulo PIR, numero di pratica, indirizzo dell\'hotel).',
 '- arrival_steps: 4-6 passi pratici dall\'atterraggio all\'uscita nel primo aeroporto di arrivo (immigrazione, bagagli, dogana, contanti, taxi/app con piano e porta). departure_steps: 2-3 passi per il volo di ritorno in quell\'aeroporto (piano partenze, tempi).',
+'- emergency: includi il numero d\'emergenza 24 ore dell\'Ambasciata d\'Italia se esiste. checks: includi sempre la registrazione su Dove Siamo Nel Mondo o app Viaggiare Sicuri.',
 '- currency: code ISO, name in italiano, per_eur = quante unità per 1 euro oggi.',
 '- phrases: 8 frasi utili pronunciabili (scritte in lettere latine) con traduzione italiana.',
 '- tips: 3-5 consigli pratici (prese elettriche, SIM, app di trasporto, truffe comuni).',
