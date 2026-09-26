@@ -219,7 +219,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='10 · 25 set 2026';
+var VERSION='11 · 26 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -274,9 +274,9 @@ var SEED={
     {name:'Galleria 10 Hotel Bangkok',address:'21 Sukhumvit Soi 10, Sukhumvit Road, Klongtoey, Bangkok 10110',
      address_local:'สุขุมวิท ซอย 10<br>แขวงคลองเตย เขตคลองเตย<br>กรุงเทพฯ 10110',
      checkin:'2026-10-04',checkin_time:'14:00',checkout:'2026-10-07',checkout_time:'12:00',notes:'Deluxe Chill Room, non rimborsabile',phone:'+66 2 615 0999'},
-    {name:'Mood Hotel Pattaya',address:'115/11 Moo 9, Pattaya Beach Road, Pattaya',
-     address_local:'115/11 หมู่ 9 ถนนพัทยาสาย&nbsp;1<br>พัทยา ชลบุรี',
-     checkin:'2026-10-07',checkin_time:'14:00',checkout:'2026-10-17',checkout_time:'12:00',notes:'Mood S Double Bed, annullamento gratuito fino a sab 3 ott, 10:00',phone:'+66 38 259 511'}
+    {name:'Mood Hotel Pattaya',address:'115/11 Moo 9, Pattaya Beach Road, Soi 3, North Pattaya, Chonburi 20150',
+     address_local:'มู้ด โฮเทล พัทยา<br>115/11 หมู่ 9 ถนนเลียบชายหาด<br>ซอยพัทยา 3 พัทยาเหนือ<br>ชลบุรี 20150',
+     checkin:'2026-10-07',checkin_time:'14:00',checkout:'2026-10-17',checkout_time:'12:00',notes:'Mood S Twin Room (richiesto letto grande), prenotato con Agoda, non rimborsabile. Al check-in: passaporto e voucher Agoda.',phone:'+66 38 259 511'}
   ],
   transfers:[
     {from:'Aeroporto Suvarnabhumi',to:'Galleria 10 Hotel',minutes:75,how:'Bolt o Grab: scendi al piano 1, dove ci sono i taxi, ma non fare la loro fila: esci dalla porta 4 e aspetta al cartello delle app. In chat all\'autista: Gate 4, floor 1. Oppure taxi ufficiale al piano 1. Mai i taxi offerti a voce.',price:'350–500 THB'},
@@ -324,7 +324,7 @@ var SEED={
   tips:['Prese elettriche: porta un adattatore universale.','Installa eSIM e app Bolt e Grab prima di partire.','Ottobre è fine stagione delle piogge: repellente per zanzare, crema solare, k-way leggero.'],
   checks:[
     {title:'Scalo di 1 ora',text:'Controlla che i voli G9696 e G9816 abbiano lo stesso codice di prenotazione: così, se perdi la coincidenza, Air Arabia ti rimette sul volo dopo.',imp:true},
-    {title:'Mood Hotel',text:'Annullamento gratuito fino a sabato 3 ottobre alle 10:00. Dopo non si annulla più.',imp:true},
+    {title:'Mood Hotel: doppia prenotazione',text:'Vecchia prenotazione con Revolut: se non l\'hai già fatto, cancellala entro sabato 3 ottobre alle 10:00, se no la paghi due volte. Quella nuova con Agoda è non rimborsabile e non si può modificare.',imp:true},
     {title:'Scalo di notte al ritorno',text:'10 ore a Sharjah: valuta una lounge o un posto per dormire in aeroporto.'},
     {title:'Bolt e Grab',text:'Registrali col numero italiano prima di partire: l\'SMS di conferma arriva lì.'},
     {title:'Valigia sicura',text:'Foto alla valigia (fuori e dentro), AirTag dentro se ce l\'hai. Al banco di Bergamo controlla che sull\'etichetta ci sia BKK e tieni lo scontrino. Nel bagaglio a mano: medicine, caricabatterie e un cambio per 1–2 giorni.',imp:true}
@@ -335,7 +335,9 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<7){t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=7;save('trips',trips)}});
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<8){t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=8;
+  // il Mood Hotel e' passato ad Agoda: la ricevuta Revolut salvata prima non vale piu'
+  try{docDel(t.id+'-h1').catch(function(){})}catch(e){}save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
 function active(){for(var i=0;i<trips.length;i++)if(trips[i].id===activeId)return trips[i];return trips[0]||null}
 var checks=load('checks',{});
