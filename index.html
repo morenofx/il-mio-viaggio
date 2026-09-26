@@ -165,6 +165,7 @@ textarea{min-height:170px;resize:vertical}
 .arr::before{content:"↓";display:block;font-size:22px;color:var(--jade);font-weight:700}
 .down{margin:8px 0 8px 62px;background:var(--jadebg);border:1px solid var(--jade);border-radius:10px;padding:6px 12px;font-size:16px;font-weight:700;color:var(--jade)}
 .side{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.cal{font-size:16px;color:var(--soft);margin:-4px 0 10px}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center;z-index:5}
 nav .in{display:flex;max-width:640px;width:100%}
@@ -219,7 +220,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='11 · 26 set 2026';
+var VERSION='12 · 26 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -324,7 +325,7 @@ var SEED={
   tips:['Prese elettriche: porta un adattatore universale.','Installa eSIM e app Bolt e Grab prima di partire.','Ottobre è fine stagione delle piogge: repellente per zanzare, crema solare, k-way leggero.'],
   checks:[
     {title:'Scalo di 1 ora',text:'Controlla che i voli G9696 e G9816 abbiano lo stesso codice di prenotazione: così, se perdi la coincidenza, Air Arabia ti rimette sul volo dopo.',imp:true},
-    {title:'Mood Hotel: doppia prenotazione',text:'Vecchia prenotazione con Revolut: se non l\'hai già fatto, cancellala entro sabato 3 ottobre alle 10:00, se no la paghi due volte. Quella nuova con Agoda è non rimborsabile e non si può modificare.',imp:true},
+    {title:'Mood Hotel: doppia prenotazione',text:'Vecchia prenotazione con Revolut: se non l\'hai già fatto, cancellala entro venerdì 2 ottobre, se no la paghi due volte: la scadenza gratis è sabato 3 alle 10:00 ora thailandese, cioè le 5 del mattino in Italia. Quella nuova con Agoda è non rimborsabile e non si può modificare.',imp:true},
     {title:'Scalo di notte al ritorno',text:'10 ore a Sharjah: valuta una lounge o un posto per dormire in aeroporto.'},
     {title:'Bolt e Grab',text:'Registrali col numero italiano prima di partire: l\'SMS di conferma arriva lì.'},
     {title:'Valigia sicura',text:'Foto alla valigia (fuori e dentro), AirTag dentro se ce l\'hai. Al banco di Bergamo controlla che sull\'etichetta ci sia BKK e tieni lo scontrino. Nel bagaglio a mano: medicine, caricabatterie e un cambio per 1–2 giorni.',imp:true}
@@ -436,7 +437,7 @@ function render(){
   if(!T){app.innerHTML='<div class="empty"><div class="big">🧳</div><h1>Nessun viaggio</h1><p class="sub">Crea il tuo primo viaggio: incolla le prenotazioni e l\'app prepara tutto.</p><button class="btn main" data-go="nuovo">Crea un viaggio</button></div>';bindCommon();return}
   app.innerHTML=({oggi:vOggi,fasi:vFasi,viaggio:vViaggio,utili:vUtili})[tab](T);
   bindCommon();
-  if(tab==='oggi')hero();
+  if(tab==='oggi'){hero();var cb=document.getElementById('calbtn');if(cb)cb.addEventListener('click',function(){toCalendar(T)})}
   if(tab==='fasi')bindFasi();
   if(tab==='utili')bindConv(T);
   if(tab==='viaggio')drawDocs();
@@ -457,8 +458,28 @@ function vOggi(T){
   var today=ymd(Date.now(),B.dtz), hasToday=B.E.some(function(e){return ymd(e.t,e.tz)===today});
   return '<h1>'+esc(T.name)+'</h1><p class="sub">'+esc(tripDates())+'</p>'+
     '<div class="hero" id="hero" aria-live="polite"></div><div id="entrywarn"></div>'+
-    '<button class="btn main" data-go="fasi">'+(hasToday?'Cosa fare oggi':'Vedi tutte le fasi da fare')+'</button>'+driverButtons(T)+
+    '<button class="btn main" data-go="fasi">'+(hasToday?'Cosa fare oggi':'Vedi tutte le fasi da fare')+'</button>'+
+    (B.E.length?'<button class="btn alt" id="calbtn">🔔 Metti i promemoria nel Calendario</button><p class="cal">Un avviso all\'ora giusta per ogni fase, anche senza internet. Tocca e poi "Aggiungi tutto". Se cambi il viaggio, rifallo.</p>':'')+driverButtons(T)+
     (B.J.length?'<h2>I tuoi voli</h2>'+flightsHtml()+'<p class="sub">Orari sempre in ora locale dell\'aeroporto.</p>':'');
+}
+// promemoria nel Calendario dell'iPhone: le fasi diventano eventi con avviso (orari in UTC, il telefono li mostra nel suo fuso)
+function icsText(T){
+  function z(ms){return new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}
+  function e(t){return String(t||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n')}
+  var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//il-mio-viaggio//IT','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:'+e(T.name)];
+  B.E.forEach(function(ev,i){
+    L.push('BEGIN:VEVENT','UID:'+e(T.id)+'-'+i+'-'+ev.t+'@il-mio-viaggio','DTSTAMP:'+z(Date.now()),'DTSTART:'+z(ev.t),'DTEND:'+z(ev.t+15*MIN),
+      'SUMMARY:'+e(ev.title),'DESCRIPTION:'+e(ev.text),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+e(ev.title),'TRIGGER:'+(/^Volo /.test(ev.title)?'-PT60M':'PT0M'),'END:VALARM','END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  return L.join('\r\n')+'\r\n';
+}
+function toCalendar(T){
+  var txt=icsText(T);
+  // sull'iPhone l'apertura diretta del file mostra "Aggiungi tutto"; sul computer si scarica
+  var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios){location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(txt);return}
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/calendar'}));a.download='promemoria-viaggio.ics';document.body.appendChild(a);a.click();a.remove();
 }
 function hero(){
   var h=document.getElementById('hero');if(!h)return;
