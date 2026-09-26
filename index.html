@@ -220,7 +220,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='14 · 26 set 2026';
+var VERSION='15 · 26 set 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -479,6 +479,13 @@ function toCalendar(T){
   var txt=icsText(T);
   // sull'iPhone l'apertura diretta del file mostra "Aggiungi tutto"; sul computer si scarica
   var ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(T.id==='thai2026'){window.open('https://morenofx.github.io/viaggio-bkk/promemoria-viaggio.ics','_blank');return}
+  // dall'icona della Home il Calendario non si apre da solo: il file si salva in File e da li' si aggiunge
+  try{var f=new File([txt],'promemoria-viaggio.ics',{type:'text/calendar'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      alert('Nella finestra che si apre scegli "Salva in File". Poi apri l\'app File, tocca promemoria-viaggio.ics e scegli "Aggiungi tutto".');
+      navigator.share({files:[f]}).catch(function(){});return;
+    }}catch(e){}
   if(ios){location.href='data:text/calendar;charset=utf-8,'+encodeURIComponent(txt);return}
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/calendar'}));a.download='promemoria-viaggio.ics';document.body.appendChild(a);a.click();a.remove();
 }
