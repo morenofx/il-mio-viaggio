@@ -346,7 +346,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<13){t.arrival_steps=SEED.arrival_steps;t.arrival_route=SEED.arrival_route;t.transfers=SEED.transfers;t.emergency=SEED.emergency;t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=13;
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<14){t.transfers=SEED.transfers;t.arrival_steps=SEED.arrival_steps;t.arrival_route=SEED.arrival_route;t.transfers=SEED.transfers;t.emergency=SEED.emergency;t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=14;
   // il Mood Hotel e' passato ad Agoda: la ricevuta Revolut salvata prima non vale piu'
   try{docDel(t.id+'-h1').catch(function(){})}catch(e){}save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
