@@ -166,6 +166,8 @@ textarea{min-height:170px;resize:vertical}
 .down{margin:8px 0 8px 62px;background:var(--jadebg);border:1px solid var(--jade);border-radius:10px;padding:6px 12px;font-size:16px;font-weight:700;color:var(--jade)}
 .side{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
 .cal{font-size:16px;color:var(--soft);margin:-4px 0 10px}
+.vib{display:flex;justify-content:flex-end;margin:-6px 0 6px}
+.vib button{background:#7360F2;color:#fff;border:0;border-radius:999px;font:inherit;font-size:15px;font-weight:700;padding:5px 14px;cursor:pointer}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom,0px);display:flex;justify-content:center;z-index:5}
 nav .in{display:flex;max-width:640px;width:100%}
@@ -220,7 +222,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='17 · 27 set 2026';
+var VERSION='18 · 2 ott 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -324,7 +326,7 @@ var SEED={
     {title:'Controlli',text:'Passaporto e sicurezza, poi al gate. I banchi chiudono circa 1 ora prima del volo.'}
   ],
   currency:{code:'THB',name:'baht',per_eur:38},
-  emergency:[{label:'Assicurazione Allianz 24h: chiama PRIMA del medico',number:'+39 02 2369 5862'},{label:'Allianz, per aprire un sinistro',number:'+39 02 2660 9690'},{label:'Ambasciata d\'Italia: emergenze gravi, 24 ore su 24',number:'+66 81 825 6103'},{label:'Polizia turistica (parla inglese)',number:'1155'},{label:'Polizia',number:'191'},{label:'Ambulanza',number:'1669'}],
+  emergency:[{label:'Allianz: assistenza medica 24h (app Allyz), chiama PRIMA del medico',number:'+39 02 2660 9283'},{label:'Allianz: assistenza in viaggio 24h (sulla polizza)',number:'+39 02 2369 5862'},{label:'Allianz, per aprire un sinistro',number:'+39 02 2660 9690'},{label:'Ambasciata d\'Italia: emergenze gravi, 24 ore su 24',number:'+66 81 825 6103'},{label:'Polizia turistica (parla inglese)',number:'1155'},{label:'Polizia',number:'191'},{label:'Ambulanza',number:'1669'}],
   embassy:{label:'Ambasciata d\'Italia a Bangkok',number:'+66 2 250 4970'},
   phrases:[
     {local:'Meter, please',it:'Tassametro, per favore'},{local:'Khob khun khrap',it:'Grazie'},{local:'Sawasdee khrap',it:'Ciao, buongiorno'},
@@ -346,7 +348,7 @@ var SEED={
 var trips=load('trips',null);
 if(!trips){trips=[SEED];save('trips',trips);save('active',SEED.id)}
 // il viaggio in Thailandia gia' salvato nel telefono prende le correzioni fatte qui
-trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<14){t.transfers=SEED.transfers;t.arrival_steps=SEED.arrival_steps;t.arrival_route=SEED.arrival_route;t.transfers=SEED.transfers;t.emergency=SEED.emergency;t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=14;
+trips.forEach(function(t){if(t.id===SEED.id&&(t.seedVer||0)<15){t.emergency=SEED.emergency;t.transfers=SEED.transfers;t.arrival_steps=SEED.arrival_steps;t.arrival_route=SEED.arrival_route;t.transfers=SEED.transfers;t.emergency=SEED.emergency;t.hotels=SEED.hotels;t.checks=SEED.checks;t.arrival_route=SEED.arrival_route;t.arrival_steps=SEED.arrival_steps;(t.hotels||[]).forEach(function(h,i){if(SEED.hotels[i]&&!h.phone)h.phone=SEED.hotels[i].phone});t.checks=SEED.checks;t.tips=SEED.tips;t.arrival_steps=SEED.arrival_steps;t.transfers=SEED.transfers;t.seedVer=15;
   // il Mood Hotel e' passato ad Agoda: la ricevuta Revolut salvata prima non vale piu'
   try{docDel(t.id+'-h1').catch(function(){})}catch(e){}save('trips',trips)}});
 var activeId=load('active',trips[0]&&trips[0].id);
@@ -449,7 +451,7 @@ function render(){
   bindCommon();
   if(tab==='oggi'){hero();var cb=document.getElementById('calbtn');if(cb)cb.addEventListener('click',function(){toCalendar(T)})}
   if(tab==='fasi')bindFasi();
-  if(tab==='utili')bindConv(T);
+  if(tab==='utili'){bindConv(T);bindVib()}
   if(tab==='viaggio'||tab==='utili')drawDocs();
 }
 
@@ -595,7 +597,7 @@ function vUtili(T){
   var h='<h1>Numeri e parole utili</h1>';
   (T.entry||[]).forEach(function(e){h+='<div class="card tip"><b>'+esc(e.title)+'</b><p>'+esc(e.text)+'</p>'+(safeUrl(e.url)?'<a class="btn alt small" href="'+esc(safeUrl(e.url))+'" target="_blank" rel="noopener">Apri il sito</a>':'')+'</div>'});
   var em=(T.emergency||[]).slice();if(T.embassy&&T.embassy.number)em.push(T.embassy);
-  if(em.length){h+='<h2>Tocca per chiamare</h2><div class="card">';em.forEach(function(x){h+='<a class="tel" href="tel:'+esc(telOf(x.number))+'"><span>'+esc(x.label)+'</span><strong>'+esc(x.number)+'</strong></a>'});h+='</div>'}
+  if(em.length){h+='<h2>Tocca per chiamare</h2><div class="card">';em.forEach(function(x){h+='<a class="tel" href="tel:'+esc(telOf(x.number))+'"><span>'+esc(x.label)+'</span><strong>'+esc(x.number)+'</strong></a>'+(telOf(x.number).length>5?'<div class="vib"><button data-vib="'+esc(telOf(x.number))+'">Chiama con Viber</button></div>':'')});h+='</div>'}
   h+='<h2>Assicurazione</h2><div data-doc="'+esc(T.id+'-pol')+'" data-docname="Polizza di viaggio"></div>';
   if((T.phrases||[]).length){h+='<h2>Parole</h2><div class="card">';T.phrases.forEach(function(p){h+='<div class="phr"><b>'+esc(p.local)+'</b>'+esc(p.it)+'</div>'});h+='</div>'}
   var c=T.currency||{};
@@ -603,6 +605,13 @@ function vUtili(T){
   if((T.tips||[]).length){h+='<h2>Consigli</h2><div class="card">';T.tips.forEach(function(t){h+='<p>• '+esc(t)+'</p>'});h+='</div>'}
   return h;
 }
+
+function viberCall(num,btn){
+  var n=String(num).replace(/[^\d+]/g,'');
+  var go=function(){btn.textContent='Numero copiato: in Viber tieni premuto e Incolla';setTimeout(function(){location.href='viber://'},400)};
+  try{navigator.clipboard.writeText(n).then(go,function(){prompt('Copia il numero e incollalo in Viber:',n)})}catch(e){prompt('Copia il numero e incollalo in Viber:',n)}
+}
+function bindVib(){app.querySelectorAll('[data-vib]').forEach(function(b){b.addEventListener('click',function(){viberCall(b.dataset.vib,b)})})}
 function bindConv(T){
   var loc=document.getElementById('loc');if(!loc)return;
   var eur=document.getElementById('eur'),rate=document.getElementById('rate'),rk='rate-'+T.id,def=(T.currency&&T.currency.per_eur)||1;
