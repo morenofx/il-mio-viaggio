@@ -222,7 +222,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 (function(){
 'use strict';
-var VERSION='18 · 2 ott 2026';
+var VERSION='19 · 2 ott 2026';
 // Modelli Gemini provati in ordine: se il primo viene dismesso, si passa al successivo.
 var MODELS=['gemini-2.5-flash','gemini-flash-latest'];
 
@@ -597,7 +597,7 @@ function vUtili(T){
   var h='<h1>Numeri e parole utili</h1>';
   (T.entry||[]).forEach(function(e){h+='<div class="card tip"><b>'+esc(e.title)+'</b><p>'+esc(e.text)+'</p>'+(safeUrl(e.url)?'<a class="btn alt small" href="'+esc(safeUrl(e.url))+'" target="_blank" rel="noopener">Apri il sito</a>':'')+'</div>'});
   var em=(T.emergency||[]).slice();if(T.embassy&&T.embassy.number)em.push(T.embassy);
-  if(em.length){h+='<h2>Tocca per chiamare</h2><div class="card">';em.forEach(function(x){h+='<a class="tel" href="tel:'+esc(telOf(x.number))+'"><span>'+esc(x.label)+'</span><strong>'+esc(x.number)+'</strong></a>'+(telOf(x.number).length>5?'<div class="vib"><button data-vib="'+esc(telOf(x.number))+'">Chiama con Viber</button></div>':'')});h+='</div>'}
+  if(em.length){h+='<h2>Tocca per chiamare</h2><div class="card">';em.forEach(function(x){h+='<a class="tel" href="tel:'+esc(telOf(x.number))+'"><span>'+esc(x.label)+'</span><strong>'+esc(x.number)+'</strong></a>'+(telOf(x.number).length>5?'<div class="vib"><button data-vib="'+esc(telOf(x.number))+'">Copia per Viber</button></div>':'')});h+='</div>'}
   h+='<h2>Assicurazione</h2><div data-doc="'+esc(T.id+'-pol')+'" data-docname="Polizza di viaggio"></div>';
   if((T.phrases||[]).length){h+='<h2>Parole</h2><div class="card">';T.phrases.forEach(function(p){h+='<div class="phr"><b>'+esc(p.local)+'</b>'+esc(p.it)+'</div>'});h+='</div>'}
   var c=T.currency||{};
@@ -608,7 +608,7 @@ function vUtili(T){
 
 function viberCall(num,btn){
   var n=String(num).replace(/[^\d+]/g,'');
-  var go=function(){btn.textContent='Numero copiato: in Viber tieni premuto e Incolla';setTimeout(function(){location.href='viber://'},400)};
+  var go=function(){btn.textContent='✓ Copiato: apri Viber → tastierino → tieni premuto → Incolla'};
   try{navigator.clipboard.writeText(n).then(go,function(){prompt('Copia il numero e incollalo in Viber:',n)})}catch(e){prompt('Copia il numero e incollalo in Viber:',n)}
 }
 function bindVib(){app.querySelectorAll('[data-vib]').forEach(function(b){b.addEventListener('click',function(){viberCall(b.dataset.vib,b)})})}
